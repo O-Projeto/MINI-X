@@ -1,6 +1,6 @@
 
 #include "mpu.h"
-#include <VL53L0X.h> 
+#include "VL53_sensors.h"
 
 bool _imu_connect; 
 bool _connect = false;
@@ -15,63 +15,15 @@ bool _connect = false;
 
 #define N_SENSOR 3 
 
-
-//Cria os objetos para cada sensor
-VL53L0X sensor[3];  //Sensor da esquerda
-
-
-int dist[N_SENSOR] ;
-
 int X_SHUT[N_SENSOR] = { SDIST_1, SDIST_2, SDIST_3} ; 
 
+VL53_sensors sensores;
 
 
 
-void sensorsInit() {
-
-    //Iniciando o endereçamento dos sensores
-    Wire.begin();
-
-    for (uint8_t i = 0; i < N_SENSOR; i++){
-      pinMode(X_SHUT[i], OUTPUT);
-      digitalWrite(X_SHUT[i], LOW);
 
 
-    }
 
-    for (uint8_t i = 0; i < N_SENSOR; i++){
-      pinMode(X_SHUT[i], INPUT);
-      sensor[i].init(true);
-      sensor[i].setAddress((uint8_t)0x21 + i); //endereço do sensor 1
-      sensor[i].setTimeout(40);
-    }
-    
-}
-
-
-void distanceRead() {
-
-    for (uint8_t i = 0; i < N_SENSOR; i++){
-       dist[i] = sensor[i].readRangeSingleMillimeters();
-    }
-   
-}
-
-
-void printDistances() {
-
-
-  for (uint8_t i = 0; i < N_SENSOR; i++){
-
-       Serial.print(" ");
-       Serial.print(String(i));
-       Serial.print(" ");
-       Serial.print(dist[i]);
-
-      Serial.println("\t\t");
-  }
-
-}
 
 
 
@@ -82,7 +34,7 @@ void setup(){
   // check that the IMU initializes correctly
   _imu_connect = imu_setup();
 
-  sensorsInit();
+  sensores.sensorsInit();
 
   if(_imu_connect == 0) {
    
@@ -97,7 +49,7 @@ void loop(){
 
 
   float* imu_ypr = imu_get_ypr();  
-  distanceRead();
+  sensores.distanceRead();
 
 
   //retunr from + pi to -pi 
@@ -114,7 +66,7 @@ void loop(){
        Serial.print(" ");
        Serial.print(String(i));
        Serial.print(" ");
-       Serial.print(dist[i]);
+       Serial.print(sensores.dist[i]);
 
   }
       Serial.println("\t\t");
