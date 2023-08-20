@@ -47,12 +47,12 @@ void VL53_sensors::distanceRead() {
 
     for (uint8_t i = 0; i < number_sensor; i++){
        dist[i] = sensor[i].readRangeSingleMillimeters();
-       Serial.print(" ");
-       Serial.print(String(i));
-       Serial.print(" ");
-       Serial.print(dist[i]);
+      //  Serial.print(" ");
+      //  Serial.print(String(i));
+      //  Serial.print(" ");
+      //  Serial.print(dist[i]);
     }
-       Serial.println("\t\t");
+      //  Serial.println("\t\t");
    
 }
 

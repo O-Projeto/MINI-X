@@ -97,7 +97,7 @@ void loop(){
        Serial.print(" ");
        Serial.print(String(i));
        Serial.print(" ");
-       Serial.print(sensores.sensor[i].readRangeSingleMillimeters());
+       Serial.print(sensores.dist[i]);
 
   }
       Serial.println("\t\t");
