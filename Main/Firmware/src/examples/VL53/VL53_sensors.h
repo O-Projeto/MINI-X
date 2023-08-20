@@ -1,13 +1,16 @@
 #include <VL53L0X.h> 
 
+#define SDIST_1 25 //change the pins 
+#define SDIST_2 23
+#define SDIST_3 13
+
 class VL53_sensors
 {
 private:
     /* data */
 public:
-    VL53_sensors(int X_SHUT[3],int N_SENSOR);
-    int number_sensor;
-    int x_shut_pins[3];
+    int number_sensor = 3; // change this value 
+    int x_shut_pins[3] = { SDIST_1, SDIST_2, SDIST_3} ; 
     int dist[3];
 
     VL53L0X sensor[3];
@@ -17,11 +20,7 @@ public:
     void printDistances();
 };
 
-VL53_sensors::VL53_sensors(int X_SHUT[3],int N_SENSOR)
-{
-    number_sensor = N_SENSOR;
-    x_shut_pins[3] = X_SHUT[3]; 
-}
+
 
 void VL53_sensors::sensorsInit() {
 

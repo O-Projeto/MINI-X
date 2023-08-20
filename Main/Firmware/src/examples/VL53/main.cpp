@@ -18,61 +18,62 @@
 
 
 //Cria os objetos para cada sensor
-VL53L0X sensor[3];  //Sensor da esquerda
+// VL53L0X sensor[3];  //Sensor da esquerda
 
 
-int dist[N_SENSOR] ;
+// int dist[N_SENSOR] ;
 
 int X_SHUT[N_SENSOR] = { SDIST_1, SDIST_2, SDIST_3} ; 
 
+VL53_sensors sensores;
 
 
 
-void sensorsInit() {
+// void sensorsInit() {
 
-    //Iniciando o endereçamento dos sensores
-    Wire.begin();
+//     //Iniciando o endereçamento dos sensores
+//     Wire.begin();
 
-    for (uint8_t i = 0; i < N_SENSOR; i++){
-      pinMode(X_SHUT[i], OUTPUT);
-      digitalWrite(X_SHUT[i], LOW);
+//     for (uint8_t i = 0; i < N_SENSOR; i++){
+//       pinMode(X_SHUT[i], OUTPUT);
+//       digitalWrite(X_SHUT[i], LOW);
 
 
-    }
+//     }
 
-    for (uint8_t i = 0; i < N_SENSOR; i++){
-      pinMode(X_SHUT[i], INPUT);
-      sensor[i].init(true);
-      sensor[i].setAddress((uint8_t)0x21 + i); //endereço do sensor 1
-      sensor[i].setTimeout(40);
-    }
+//     for (uint8_t i = 0; i < N_SENSOR; i++){
+//       pinMode(X_SHUT[i], INPUT);
+//       sensor[i].init(true);
+//       sensor[i].setAddress((uint8_t)0x21 + i); //endereço do sensor 1
+//       sensor[i].setTimeout(40);
+//     }
     
-}
+// }
 
 
-void distanceRead() {
+// void distanceRead() {
 
-    for (uint8_t i = 0; i < N_SENSOR; i++){
-       dist[i] = sensor[i].readRangeSingleMillimeters();
-    }
+//     for (uint8_t i = 0; i < N_SENSOR; i++){
+//        dist[i] = sensor[i].readRangeSingleMillimeters();
+//     }
    
-}
+// }
 
 
-void printDistances() {
+// void printDistances() {
 
 
-  for (uint8_t i = 0; i < N_SENSOR; i++){
+//   for (uint8_t i = 0; i < N_SENSOR; i++){
 
-       Serial.print(" ");
-       Serial.print(String(i));
-       Serial.print(" ");
-       Serial.print(dist[i]);
+//        Serial.print(" ");
+//        Serial.print(String(i));
+//        Serial.print(" ");
+//        Serial.print(dist[i]);
 
-      Serial.println("\t\t");
-  }
+//       Serial.println("\t\t");
+//   }
 
-}
+// }
 
 
 
@@ -81,7 +82,7 @@ void setup(){
   Serial.begin(112500);
 
 
-  sensorsInit();
+  sensores.sensorsInit();
 
 
 }
@@ -89,14 +90,14 @@ void setup(){
 
 void loop(){
  
-  distanceRead();
+ sensores.distanceRead();
 
   for (uint8_t i = 0; i < N_SENSOR; i++){
 
        Serial.print(" ");
        Serial.print(String(i));
        Serial.print(" ");
-       Serial.print(dist[i]);
+       Serial.print(sensores.sensor[i].readRangeSingleMillimeters());
 
   }
       Serial.println("\t\t");
