@@ -3,10 +3,10 @@
 
 
 
-#define NUMPIXELS 7
-#define RGB_PIN 4
+#define NUMPIXELS 6
+#define RGB_PIN 26
 
-Adafruit_NeoPixel pixels(NUMPIXELS, 4, NEO_GRB + NEO_KHZ800);
+Adafruit_NeoPixel pixels(NUMPIXELS, RGB_PIN, NEO_GRB + NEO_KHZ800);
 
 class led_rgb 
 {
