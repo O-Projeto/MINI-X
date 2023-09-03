@@ -118,6 +118,6 @@ void loop() {
 
 
     LED.set(led_color);
-    left_motor.write(speed);
-    right_motor.write(speed);
+    left_motor.write(50);
+    right_motor.write(50);
 }

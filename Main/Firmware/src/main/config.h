@@ -1,9 +1,9 @@
 
 
 //motors 
-#define MOTOR_LEFT_PIN 33
+#define MOTOR_LEFT_PIN 32
 
-#define MOTOR_RIGH_PIN 32
+#define MOTOR_RIGH_PIN 33
 
 //LED 
 #define AMARELO 16768256 
@@ -11,8 +11,8 @@
 #define VERDE 63240
 #define AZUL 49911
 
-#define NUMPIXELS 7
-#define RGB_PIN 4
+#define NUMPIXELS 6
+#define RGB_PIN 26
 
 
 // controle remoto do juiz 
