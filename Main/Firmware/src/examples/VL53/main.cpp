@@ -14,7 +14,7 @@
 #define SDIST_2 23
 #define SDIST_3 13
 
-#define N_SENSOR 3 
+#define N_SENSOR 3
 
 
 //Cria os objetos para cada sensor
