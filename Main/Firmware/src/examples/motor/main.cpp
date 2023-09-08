@@ -4,13 +4,20 @@
 Servo esc;
 
 #define pinPot 13
-#define pinEsc 33
+#define pinEsc 16
 
 void setup()
 {
 esc.attach(pinEsc); 
+// esc.writeMicroseconds(1500); 
+// Serial.begin(112500);
+
+delay(255);
+
+// for(int i = 1500; i<=2000; i++){
+//     esc.writeMicroseconds(i); 
+// }
 esc.writeMicroseconds(1500); 
-Serial.begin(112500);
 }
 
 void loop()
@@ -24,5 +31,8 @@ val= analogRead(pinPot);
 val= map(val, 0, 4096,1000,2000); 
 Serial.println(val);
 
-esc.writeMicroseconds(2000); 
+delay(2000); 
+
+esc.writeMicroseconds(1800); 
+
 }

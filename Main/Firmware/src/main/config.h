@@ -31,3 +31,9 @@
 
 #define RFT_FRONT_PIN 27
 #define RFT_BACK_PIN 26
+
+
+//MECHANICAL 
+
+#define L  0.09 
+#define R 0.015

@@ -1,6 +1,7 @@
 
 #include "IRremote.h"
 
+int last_button_read;
 class controle_juiz
 {
 private:
@@ -26,10 +27,15 @@ void controle_juiz::init(){
 int controle_juiz::read(){
 
     if (IrReceiver.decode()) {
-    IrReceiver.resume();
-    button_read = IrReceiver.decodedIRData.command;
-    }
 
+        IrReceiver.resume();
+        button_read = IrReceiver.decodedIRData.command;
+
+        if(last_button_read ==0){
+            button_read = -1;
+        }
+    }
+    last_button_read = button_read ;
     return button_read;
 
 }
