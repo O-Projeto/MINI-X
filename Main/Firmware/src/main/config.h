@@ -5,11 +5,18 @@
 
 #define MOTOR_RIGH_PIN 33
 
+#define ENCODER_LEFT_A_PIN 19
+#define ENCODER_LEFT_B_PIN 18
+
+#define ENCODER_RIGHT_A_PIN 27
+#define ENCODER_RIGHT_B_PIN 14
+
 //LED 
 #define AMARELO 16768256 
 #define VERMELHO 16515843
 #define VERDE 63240
 #define AZUL 49911
+#define ROXO 4856753
 
 #define NUMPIXELS 6
 #define RGB_PIN 26
@@ -37,3 +44,12 @@
 
 #define L  0.09 
 #define R 0.015
+
+
+#define SATURATION 80 //[-100,100]
+#define MIN_VALUE  1000 
+#define MAX_VALUE  2000 
+#define STOP_VALUE  1500
+
+
+#define ESP_MAC "58:bf:25:33:3a:38"

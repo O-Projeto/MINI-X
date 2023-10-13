@@ -1,25 +1,48 @@
 #include <Arduino.h>
 #include <ESP32Servo.h>
+#include <ESP32Encoder.h>
 #include "config.h" 
 #include "led_rgb.h"
 #include "controle_juiz.h"
 #include "VL53_sensors.h"
 #include "mpu.h"
+#include "cinematic.h"
+#include "odometry.h"
+// #include "ps4.h"
 
 
+
+
+unsigned long previousMillis = 0; 
+unsigned long currentMillis ; 
+int change_dir_time = 300; 
+int dir = 1;
+
+
+bool mode_auto = true;
+bool mode_manual = false
+;
+// bool mode = mode_manual; 
+bool mode = mode_auto; 
+
+bool connected_ps4 = false;
 
 bool _imu_connect; 
 bool _connect = false;
 
+float set_point = 0;
 
-float kp,ki,kd, pid_; 
+float KP = 0.5 ;
 
+float kp; 
+float pid ; 
+float error_angular;
 
 int cr_read;
+int comand = -1; 
 float* imu_ypr ;
 
-int const MIN_VALUE = 1000; 
-int const MAX_VALUE = 2000; 
+
 
 int led_color = VERMELHO;
 
@@ -29,6 +52,9 @@ bool enable = false;
 
 Servo motor_esquerda;
 Servo motor_direita ;
+
+ESP32Encoder encoder_esquerda;
+ESP32Encoder encoder_direita;
 
 led_rgb LED ; 
 
@@ -44,60 +70,27 @@ VL53_sensors sensores;
 #define pinEsc2 32
 #define pinEsc1 33
 
-int speed_converter(int speed){
 
-    speed = map(speed,- 100, 100,MIN_VALUE,MAX_VALUE); 
 
-    if(speed < 150 and speed > 1450){
-        speed = 1500; 
-    }
-    return speed ; 
-}
 
-float cinematic_right(int linear, int angular){
-
-  float right_speed = (linear + angular*L)/R ; 
-
-  if(right_speed > 100)
-    right_speed = 100;
-
-  if(right_speed < -100)
-    right_speed = -100;
-
-  return right_speed; 
-
-}
-
-float cinematic_left(float linear, float  angular){
-
-  float left_speed = (linear - angular*L)/R ;
-
-  if(left_speed > 100)
-    left_speed = 100;
-
-  if(left_speed < -100)
-    left_speed = -100;
-
-  //it reversed because of the mecaical assembly 
-  return left_speed; 
-
-}
 
 
 void debug(){
 
   Serial.print(" CR: ");
   Serial.print(cr_read);
+  Serial.print(" CMD:");
+  Serial.print(comand);
 
-  Serial.print(" |VL :");
-  for (uint8_t i = 0; i < N_SENSOR; i++){
+  // Serial.print(" |VL :");
+  // for (uint8_t i = 0; i < N_SENSOR; i++){
 
-      Serial.print(" ");
-      Serial.print(String(i));
-      Serial.print(" ");
-      Serial.print(sensores.dist[i]);
+  //     Serial.print(" ");
+  //     Serial.print(String(i));
+  //     Serial.print(" ");
+  //     Serial.print(sensores.dist[i]);
 
-  }
+  // }
 
 
 
@@ -109,16 +102,29 @@ void debug(){
       Serial.print(imu_ypr[2]);
 
 
-      Serial.print(" |Speed:linear: ");
-      Serial.print(linear);
-      Serial.print(" angular: ");
-      Serial.print(angular);
-      Serial.print(" L: ");
-      Serial.print(speed_left);
-      Serial.print(" R: ");
-      Serial.print(speed_right);
+      // Serial.print(" |Speed:linear: ");
+      // Serial.print(linear);
+      // Serial.print(" angular: ");
+      // Serial.print(angular);
+      // Serial.print(" L: ");
+      // Serial.print(speed_left);
+      // Serial.print(" R: ");
+      // Serial.print(speed_right);
+
+      // Serial.print(" |PID-e: ");
+      // Serial.print(error_angular);
+      // Serial.print(" P: ");
+      // Serial.print(kp);
+
+
+      Serial.print(" |ENC R: ");
+      Serial.print(-1*encoder_direita.getCount());
+      Serial.print(" | L: ");
+      Serial.print(encoder_esquerda.getCount());
 
       Serial.println("");
+
+
 
 
 
@@ -137,6 +143,11 @@ void setup()
     motor_direita.writeMicroseconds(1500); 
     motor_esquerda.writeMicroseconds(1500); 
 
+    ESP32Encoder::useInternalWeakPullResistors=UP;
+    encoder_esquerda.attachHalfQuad(ENCODER_LEFT_A_PIN, ENCODER_LEFT_B_PIN);
+    encoder_direita.attachHalfQuad(ENCODER_RIGHT_A_PIN,ENCODER_RIGHT_B_PIN);
+    
+
     Serial.begin(115200);
 
     controle_sony.init();
@@ -152,6 +163,8 @@ void setup()
     //init led 
     LED.init();
 
+    // PS4setup();
+
 
     led_color = AZUL ;
 
@@ -162,62 +175,107 @@ void setup()
 }
 
 void loop()
-{ 
+   {
+    if(mode==mode_auto){
 
-    cr_read = controle_sony.read();
-    sensores.distanceRead();
-    imu_ypr = imu_get_ypr(); 
+      cr_read = controle_sony.read();
+      if(cr_read==-1){
+            led_color =AZUL;
+          }
+
+        if( cr_read==TREE || cr_read==TWO )
+          comand = cr_read ; 
+
+        sensores.distanceRead();
+        imu_ypr = imu_get_ypr(); 
+
+        // cr_read = TWO;
+        // Serial.println(cr_read);
 
 
-    switch (cr_read)
-        {
-          case ONE :
-            //enable robot 
-            enable = false; 
-            led_color = AMARELO; 
-            break;
+      error_angular = set_point - imu_ypr[0] ; 
+      kp = error_angular*KP; 
+
+      pid = kp ;
+
+
+
+        switch (comand)
+            {
+              case ONE :
+                //enable robot 
+                // enable = false; 
+                led_color = AMARELO; 
+                break;
+              
+              case TWO :
+              currentMillis = millis () ; 
+              if ( currentMillis - previousMillis >= change_dir_time ) {
+
+                previousMillis = currentMillis;
+                dir = dir*-1; 
+              
+              }
+                // fight  
+                enable = true ;
+                led_color = VERDE;
+              
+                linear = 8*dir;
+                angular = dir*pid;
+                break;    
+
+
+
+              case TREE :
+              
+                enable = false ;
+                // stop 
+                led_color = VERMELHO ;
+                linear = 0;
+                angular = 0;
+                break;   
           
-          case TWO :
-            // fight  
-            enable = true ;
-            led_color = VERDE;
+                default:
+                led_color = AZUL ;
+            }
 
 
+          if(enable){
+            speed_left =  speed_converter(cinematic_left(angular,linear));
+            speed_right = speed_converter(cinematic_right(angular,linear));
+          }else{
+            speed_left =  1500;
+            speed_right = 1500;
+          }
 
-            linear = 10;
-            angular = 0;
-            break;    
-
-
-          case TREE :
-            enable = false ;
-            // stop 
-            led_color = AZUL ;
-            linear = 0;
-            angular = 0;
-            break;   
-
-          default:
-            led_color = AZUL ;
-        }
-
-      if(enable){
-        speed_left =  speed_converter(cinematic_left(angular,linear));
-        speed_right = speed_converter(cinematic_right(angular,linear));
-      }else{
-        speed_left =  1500;
-        speed_right = 1500;
-      }
+          if(cr_read==ONE){
+            led_color = AMARELO;
+          }
 
 
-      LED.set(led_color);
+ }
+// else{
+//     // connected_ps4 = ps4Connected();
 
+//     // if(connected_ps4){
+//     // // manual mode
+//     //   led_color = ROXO;
+//     //   linear = ps4Linear();
+//     //   angular = ps4Angular();
+//     //   speed_left =  speed_converter(cinematic_left(angular,linear));
+//     //   speed_right = speed_converter(cinematic_right(angular,linear));
+//     // }
+
+// }
+
+    LED.set(led_color);
+    motor_esquerda.writeMicroseconds(speed_left); 
+    motor_direita.writeMicroseconds(speed_right); 
+
+
+    debug();
+    odom(encoder_esquerda.getCount(), -1*encoder_direita.getCount(),imu_ypr[0]);
      
-      motor_esquerda.writeMicroseconds(speed_left); 
-      motor_direita.writeMicroseconds(speed_right); 
-  
-      debug(); 
-
 
 
 }
