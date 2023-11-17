@@ -69,13 +69,13 @@ double vth = 0.0;
         //     heading_offset = yaw;
         // }
 
-        Serial.print("X: " );
-        Serial.print(x);
-        Serial.print(" Y: ");
-        Serial.print(y);
-        Serial.print(" Yaw: ");
-        Serial.print(th);
-        Serial.println("");
+        // Serial.print("X: " );
+        // Serial.print(x);
+        // Serial.print(" Y: ");
+        // Serial.print(y);
+        // Serial.print(" Yaw: ");
+        // Serial.print(th);
+        // Serial.println("");
 
         last_left_ticks = pulseLeft;
         last_right_ticks = pulseRight;
