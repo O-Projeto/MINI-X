@@ -10,11 +10,11 @@
 #define SDA_SDIST 21
 
 // XSHUT, uma porta por sensor 
-#define SDIST_1 25
-#define SDIST_2 23
-#define SDIST_3 13
+// #define SDIST_1 25
+// #define SDIST_2 23
+// #define SDIST_3 13
 
-#define N_SENSOR 1
+#define N_SENSOR 3
 
 
 //Cria os objetos para cada sensor

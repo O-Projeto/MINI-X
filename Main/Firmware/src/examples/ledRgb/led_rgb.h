@@ -3,7 +3,7 @@
 
 
 
-#define NUMPIXELS 6
+#define NUMPIXELS 4
 #define RGB_PIN 26
 
 Adafruit_NeoPixel pixels(NUMPIXELS, RGB_PIN, NEO_GRB + NEO_KHZ800);

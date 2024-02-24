@@ -37,8 +37,8 @@ TwoWire Wire2CX((uint8_t)sizeof(uint8_t));
 
 */
 
-static const uint8_t cxSDA = 4;
-static const uint8_t cxSCL = 15;
+static const uint8_t cxSDA = 15;
+static const uint8_t cxSCL = 4;
 
 SparkFun_VL53L5CX myImager;
 VL53L5CX_ResultsData VL53L5_data; // Result data class structure, 1356 byes of RAM
