@@ -2,8 +2,8 @@
 #include "refletancia.h"
 
 
-
-#define pin 26 
+//36 e 39 
+#define pin 36 //back 
 
 refletancia rft_front(pin, 700);
 
@@ -11,7 +11,7 @@ void setup(){
 
 
     rft_front.init();
-    Serial.begin(112500);
+    Serial.begin(115200);
 }
 
 

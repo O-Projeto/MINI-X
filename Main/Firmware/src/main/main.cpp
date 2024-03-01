@@ -4,24 +4,20 @@
 #include "config.h" 
 #include "led_rgb.h"
 #include "controle_juiz.h"
-// #include "VL53_sensors.h"
+#include "VL53_sensors.h"
 #include "mpu.h"
 #include "cinematic.h"
 #include "odometry.h"
 
+#include "voltage.h"
+voltage battery_voltage(PIN_BAT);
+float bat_read; 
+
 
 #include "controller.h"
-Controller balancer_controller(0.5,0,0); 
+double KP = 0.25 ;
 
-#include "BluetoothSerial.h"
-
-#if !defined(CONFIG_BT_ENABLED) || !defined(CONFIG_BLUEDROID_ENABLED)
-#error Bluetooth is not enabled! Please run `make menuconfig` to and enable it
-#endif
-
-BluetoothSerial SerialBT;
-
-
+Controller balancer_controller(KP,0,0); 
 
 
 unsigned long previousMillis = 0; 
@@ -32,20 +28,11 @@ int const SP_Y = 0;
 int const tolerancia = 0.5;
 
 
-bool mode_auto = true;
-bool mode_manual = false
-;
-// bool mode = mode_manual; 
-bool mode = mode_auto; 
-
-
-
 bool _imu_connect; 
 bool _connect = false;
 
 float set_point = 0;
 
-float KP = 0.5 ;
 
 float kp; 
 float pid ; 
@@ -76,15 +63,32 @@ led_rgb LED ;
 
 controle_juiz controle_sony(CR_PIN) ; 
 
-// #define N_SENSOR 3
+#include "refletancia.h"
+refletancia rft_front(RFT_FRONT_PIN, 700);
+bool border_front ;
 
-// int X_SHUT[N_SENSOR] = { SDIST_1, SDIST_2,SDIST_3 } ; 
+refletancia rft_back(RFT_BACK_PIN,700);
+bool border_back;
 
-// VL53_sensors sensores;
+
+
+
+
+
+#define N_SENSOR 3
+
+int X_SHUT[N_SENSOR] = { SDIST_1, SDIST_2,SDIST_3 } ; 
+
+VL53_sensors sensores;
+
+void debug_serial();
+
 
 
 #define pinEsc2 32
 #define pinEsc1 33
+
+float recon_enemy_sides(VL53_sensors sensores);
 
 
 
@@ -111,11 +115,13 @@ void setup()
     
 
     Serial.begin(115200);
-    SerialBT.begin("MINI_X"); 
+   
 
     controle_sony.init();
 
-    // sensores.sensorsInit();
+    sensores.sensorsInit();
+
+    battery_voltage.calibration(2260,11.0,2693,12.63);
 
     _imu_connect = imu_setup();
 
@@ -135,9 +141,15 @@ void setup()
 
 void loop()
    {
-    if(mode==mode_auto){
-
+  
       cr_read = controle_sony.read();
+
+      bat_read =  battery_voltage.output(); 
+
+      border_front = rft_front.detect_border();
+      border_back = rft_back.detect_border();
+
+       
       if(cr_read==-1){
             led_color =AZUL;
           }
@@ -145,14 +157,13 @@ void loop()
         if( cr_read==TREE || cr_read==TWO )
           comand = cr_read ; 
 
-        // sensores.distanceRead();
+        sensores.distanceRead();
         imu_ypr = imu_get_ypr(); 
+        set_point = recon_enemy_sides(sensores);
 
-        // cr_read = TWO;
-        // Serial.println(cr_read);
-
-
-      pid = balancer_controller.output(imu_ypr[0],set_point);
+        pid = balancer_controller.output(imu_ypr[0],set_point);
+        error_angular = balancer_controller.error ; 
+        angular = pid ; 
 
       //calculate position error with hipotenuse 
       dx = SP_X - x ;
@@ -171,23 +182,12 @@ void loop()
                 break;
               
               case TWO :
-                
+                // fight 
+
+
               
-              
-              if(error_pos_linear < tolerancia){
-                // stop 
-                linear = 0;
-                angular = 0;
+             
 
-
-              }else{
-                // linear = linear_pid;
-                linear = 4 ;
-                angular_pid = pid ;
-                angular = angular_pid;
-              }
-
-                // fight  
                 enable = true ;
                 led_color = VERDE;
               
@@ -223,120 +223,72 @@ void loop()
           }
 
 
- }
-
-
-
     debug_serial();
-    debug_blu();
+    // debug_blu();
     odom(encoder_esquerda.getCount(), -1*encoder_direita.getCount(),imu_ypr[0]);
      
 
 
-    LED.set(led_color);
+  
+    if(set_point == 0){
+      // Serial.print("frente");
+      LED.set_led_number(led_color,0);
+      LED.set_led_number(VERMELHO,1);
+      LED.set_led_number(VERMELHO,2);
+      LED.set_led_number(led_color,3);
+    }
+    if(set_point > 1.57 && set_point < 3){
+      // Serial.print("direita");
+      LED.set_led_number(VERMELHO,0);
+      LED.set_led_number(VERMELHO,1);
+      LED.set_led_number(led_color,2);
+      LED.set_led_number(led_color,3);
+    }
+    if(set_point < -1.57 && set_point > -3){
+      //  Serial.print("esquerda");
+      LED.set_led_number(led_color,0);
+      LED.set_led_number(led_color,1);
+      LED.set_led_number(VERMELHO,2);
+      LED.set_led_number(VERMELHO,3);
+    }
+    if(set_point > -3 && set_point >3){
+      //  Serial.print("traz");
+      LED.set_led_number(VERMELHO,0);
+      LED.set_led_number(led_color,1);
+      LED.set_led_number(led_color,2);
+      LED.set_led_number(VERMELHO,3);
+    }
+
     motor_esquerda.write(speed_left); 
     motor_direita.write(speed_right); 
 }
 
 
-void debug_blu(){
-
-  // SerialBT.print(" CR: ");
-  // SerialBT.print(cr_read);
-  // SerialBT.print(" CMD:");
-  // SerialBT.print(comand);
-
-  // SerialBT.print(" |VL :");
-  // for (uint8_t i = 0; i < N_SENSOR; i++){
-
-  //     SerialBT.print(" ");
-  //     SerialBT.print(String(i));
-  //     SerialBT.print(" ");
-  //     SerialBT.print(sensores.dist[i]);
-
-  // }
-
-
-
-      // SerialBT.print(" |IMU  Y :");
-      // SerialBT.print(imu_ypr[0]);
-      // SerialBT.print(" P : ");
-      // SerialBT.print(imu_ypr[1]);
-      // SerialBT.print(" R : ");
-      // SerialBT.print(imu_ypr[2]);
-
-
-     
-      // SerialBT.print(" L: ");
-      // SerialBT.print(speed_left);
-      // SerialBT.print(" R: ");
-      // SerialBT.print(speed_right);
-
-
-      // SerialBT.print(" |ENC R: ");
-      // SerialBT.print(-1*encoder_direita.getCount());
-      // SerialBT.print(" | L: ");
-      // SerialBT.print(encoder_esquerda.getCount());
-
-      SerialBT.print("|ps: ");
-      SerialBT.print(error_pos_linear);
-    
-      SerialBT.print(" X: ");
-      SerialBT.print(x);
-      SerialBT.print(" Y: ");
-      SerialBT.print(y);
-      SerialBT.print(" th: ");
-      SerialBT.print(th);
-
-      // SerialBT.print(" |SP: ");
-      // SerialBT.print(balancer_controller.setpoint_);
-      // SerialBT.print(" |CV: ");
-      // SerialBT.print(balancer_controller.current_value_);
-
-      SerialBT.print(" ||e: ");
-      SerialBT.print(balancer_controller.error);
-      SerialBT.print(" |P: ");
-      SerialBT.print(balancer_controller.proportional());
-      SerialBT.print(" |I: ");
-      SerialBT.print(balancer_controller.integrative());
-      SerialBT.print("|D: ");
-      SerialBT.print(balancer_controller.derivative());
-
-      SerialBT.print(" |OV: ");
-      SerialBT.print(balancer_controller.output_value);
-      // SerialBT.print(" linear: ");
-      // SerialBT.print(linear);
-      // SerialBT.print(" angular: ");
-      // SerialBT.print(angular);
-      SerialBT.println("");
-
-
-
-
-
-      SerialBT.println("");
-
-
-
-}
-
-
 void debug_serial(){
 
-  Serial.print(" CR: ");
-  Serial.print(cr_read);
-  Serial.print(" CMD:");
-  Serial.print(comand);
+  // Serial.print(" CR: ");
+  // Serial.print(cr_read);
+  // Serial.print(" CMD:");
+  // Serial.print(comand);
 
-  // Serial.print(" |VL :");
-  // for (uint8_t i = 0; i < N_SENSOR; i++){
+  Serial.print("Bat ");
+  Serial.print(bat_read);
 
-  //     Serial.print(" ");
-  //     Serial.print(String(i));
-  //     Serial.print(" ");
-  //     Serial.print(sensores.dist[i]);
+  Serial.print(" |FRONT: ");
+  Serial.print(border_front);
 
-  // }
+  Serial.print(" |BACK: ");
+  Serial.print(border_back);
+
+  Serial.print(" |VL :");
+  for (uint8_t i = 0; i < N_SENSOR; i++){
+
+      Serial.print(" ");
+      Serial.print(String(i));
+      Serial.print(" ");
+      Serial.print(sensores.dist[i]);
+
+  }
 
 
 
@@ -348,37 +300,60 @@ void debug_serial(){
       // Serial.print(imu_ypr[2]);
 
 
-      // Serial.print(" |Speed:linear: ");
-      // Serial.print(linear);
-      // Serial.print(" angular: ");
-      // Serial.print(angular);
-      // Serial.print(" L: ");
-      // Serial.print(speed_left);
-      // Serial.print(" R: ");
-      // Serial.print(speed_right);
 
-      // Serial.print(" |PID-e: ");
-      // Serial.print(error_angular);
-      // Serial.print(" P: ");
+      Serial.print( " |SP: ");
+      Serial.print(set_point);
+      Serial.print(" |PID-e: ");
+      Serial.print(error_angular);
+      Serial.print(" P: ");
       // Serial.print(kp);
 
-      Serial.print(" X: ");
-      Serial.print(x);
-      Serial.print(" Y: ");
-      Serial.print(y);
+      Serial.print(" |Speed:linear: ");
+      Serial.print(linear);
+      Serial.print(" angular: ");
+      Serial.print(angular);
+      Serial.print(" L: ");
+      Serial.print(speed_left);
+      Serial.print(" R: ");
+      Serial.print(speed_right);
+
+      // Serial.print(" X: ");
+      // Serial.print(x);
+      // Serial.print(" Y: ");
+      // Serial.print(y);
       Serial.print(" YAW: ");
       Serial.print(th);
 
 
 
-      Serial.print(" |ENC R: ");
-      Serial.print(-1*encoder_direita.getCount());
-      Serial.print(" | L: ");
-      Serial.print(encoder_esquerda.getCount());
+      // Serial.print(" |ENC R: ");
+      // Serial.print(-1*encoder_direita.getCount());
+      // Serial.print(" | L: ");
+      // Serial.print(encoder_esquerda.getCount());
 
       Serial.println("");
 
 
+
+
+
+}
+
+
+float recon_enemy_sides(VL53_sensors sensores){
+
+
+  float enemy_positon[3] = {PI/2,PI,-PI/2};
+  
+  for (uint8_t i = 0; i < N_SENSOR; i++){
+
+     
+      if(sensores.dist[i] < 300){
+        return enemy_positon[i] ;
+      } 
+
+  }
+    return 0.0 ;
 
 
 

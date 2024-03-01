@@ -17,6 +17,7 @@
 #define VERDE 63240
 #define AZUL 49911
 #define ROXO 4856753
+#define PRETO 130000 
 
 #define NUMPIXELS 6
 #define RGB_PIN 26
@@ -36,8 +37,10 @@
 
 //REFLETANCIA
 
-#define RFT_FRONT_PIN 27
-#define RFT_BACK_PIN 26
+#define RFT_FRONT_PIN 36
+#define RFT_BACK_PIN 39
+
+#define PIN_BAT 35 
 
 
 //MECHANICAL 

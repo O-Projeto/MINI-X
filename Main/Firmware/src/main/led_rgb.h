@@ -24,13 +24,15 @@ public:
     void latch(const long time, int color);
 
     void set(int color);
+
+    void set_led_number(int color, int pos);
 };
 
 
 void led_rgb ::init(){
     //set motor
   pixels.begin(); // INITIALIZE NeoPixel strip object (REQUIRED)
-  pixels.setBrightness(100); // not so bright]
+  pixels.setBrightness(40); // not so bright]
   pixels.fill(0x000000);
   pixels.show();
   unsigned long start_time = millis();
@@ -91,4 +93,11 @@ void led_rgb::set(int color){
 
     pixels.fill(color);
     pixels.show();
+}
+
+void led_rgb::set_led_number(int color, int pos){
+
+   pixels.setPixelColor(pos, color);
+   pixels.show();
+
 }

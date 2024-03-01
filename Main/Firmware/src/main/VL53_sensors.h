@@ -38,7 +38,7 @@ void VL53_sensors::sensorsInit() {
       pinMode(x_shut_pins[i], INPUT);
       sensor[i].init(true);
       sensor[i].setAddress((uint8_t)0x21 + i); //endereço do sensor 1
-      sensor[i].setTimeout(60);
+      sensor[i].setTimeout(40);
     }
     
 }
