@@ -5,7 +5,8 @@
 #include "led_rgb.h"
 #include "controle_juiz.h"
 #include "VL53_sensors.h"
-#include "mpu.h"
+// #include "VL53L5CX_sensor.h"
+#include "mpu.h" //giroscopio 
 #include "cinematic.h"
 #include "odometry.h"
 
@@ -14,14 +15,14 @@ voltage battery_voltage(PIN_BAT);
 float bat_read; 
 
 
-#include "controller.h"
-double KP = 0.25 ;
+#include "controller.h" //PID
+double KP = 0.25 ; //constante correção de erros PID
 
 Controller balancer_controller(KP,0,0); 
 
 
-unsigned long previousMillis = 0; 
-unsigned long currentMillis ; 
+unsigned long previousMillis = 0; //unsigned significa que não guarda numero negativo
+unsigned long currentMillis ;  
 
 int const SP_X = 3; //[cm ]
 int const SP_Y = 0;
@@ -64,11 +65,11 @@ led_rgb LED ;
 controle_juiz controle_sony(CR_PIN) ; 
 
 #include "refletancia.h"
-refletancia rft_front(RFT_FRONT_PIN, 700);
-bool border_front ;
+refletancia rft_front(RFT_FRONT_PIN, 2900);
+int border_front ;
 
-refletancia rft_back(RFT_BACK_PIN,700);
-bool border_back;
+refletancia rft_back(RFT_BACK_PIN,2900);
+int border_back;
 
 
 
@@ -127,7 +128,8 @@ void setup()
 
     digitalWrite(2, !_imu_connect); 
 
-
+    // VL53L5_init();
+    
     //init led 
     LED.init();
 
@@ -146,9 +148,11 @@ void loop()
 
       bat_read =  battery_voltage.output(); 
 
+      rft_front.read();
+      rft_back.read();
+
       border_front = rft_front.detect_border();
       border_back = rft_back.detect_border();
-
        
       if(cr_read==-1){
             led_color =AZUL;
@@ -160,6 +164,12 @@ void loop()
         sensores.distanceRead();
         imu_ypr = imu_get_ypr(); 
         set_point = recon_enemy_sides(sensores);
+        if(border_front){
+          set_point = PI ; 
+        }
+        if(border_back){
+          set_point = 0 ;
+        }
 
         pid = balancer_controller.output(imu_ypr[0],set_point);
         error_angular = balancer_controller.error ; 
@@ -187,10 +197,19 @@ void loop()
 
               
              
-
                 enable = true ;
                 led_color = VERDE;
-              
+                linear = 17;
+
+                if(border_front){
+                  linear = linear*-1;
+                }
+                if(border_back){
+                   linear = linear*-1;
+                }
+
+                
+                
                 
                 break;    
 

@@ -37,8 +37,8 @@
 
 //REFLETANCIA
 
-#define RFT_FRONT_PIN 36
-#define RFT_BACK_PIN 39
+#define RFT_FRONT_PIN 39
+#define RFT_BACK_PIN 36
 
 #define PIN_BAT 35 
 
