@@ -16,7 +16,7 @@ float bat_read;
 
 
 #include "controller.h" //PID
-double KP = 0.25 ; //constante correção de erros PID
+double KP = 0.1 ; //constante correção de erros PID
 
 Controller balancer_controller(KP,0,0); 
 
@@ -86,8 +86,7 @@ void debug_serial();
 
 
 
-#define pinEsc2 32
-#define pinEsc1 33
+
 
 float recon_enemy_sides(VL53_sensors sensores);
 
@@ -164,12 +163,12 @@ void loop()
         sensores.distanceRead();
         imu_ypr = imu_get_ypr(); 
         set_point = recon_enemy_sides(sensores);
-        if(border_front){
-          set_point = PI ; 
-        }
-        if(border_back){
-          set_point = 0 ;
-        }
+        // if(border_front){
+        //   set_point = PI ; 
+        // }
+        // if(border_back){
+        //   set_point = 0 ;
+        // }
 
         pid = balancer_controller.output(imu_ypr[0],set_point);
         error_angular = balancer_controller.error ; 
@@ -199,14 +198,14 @@ void loop()
              
                 enable = true ;
                 led_color = VERDE;
-                linear = 17;
+                linear = 0;
 
-                if(border_front){
-                  linear = linear*-1;
-                }
-                if(border_back){
-                   linear = linear*-1;
-                }
+                // if(border_front){
+                //   linear = linear*-1;
+                // }
+                // if(border_back){
+                //    linear = linear*-1;
+                // }
 
                 
                 
@@ -287,8 +286,8 @@ void debug_serial(){
 
   // Serial.print(" CR: ");
   // Serial.print(cr_read);
-  // Serial.print(" CMD:");
-  // Serial.print(comand);
+  Serial.print(" CMD:");
+  Serial.print(comand);
 
   Serial.print("Bat ");
   Serial.print(bat_read);
@@ -367,7 +366,7 @@ float recon_enemy_sides(VL53_sensors sensores){
   for (uint8_t i = 0; i < N_SENSOR; i++){
 
      
-      if(sensores.dist[i] < 300){
+      if(sensores.dist[i] < 50){
         return enemy_positon[i] ;
       } 
 

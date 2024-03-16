@@ -1,13 +1,12 @@
 
 
 //motors 
-
-#define pinEsc2 32
-#define pinEsc1 33
-
 #define MOTOR_LEFT_PIN 32
 
 #define MOTOR_RIGH_PIN 33
+
+#define pinEsc2 32
+#define pinEsc1 33
 
 #define ENCODER_LEFT_A_PIN 19
 #define ENCODER_LEFT_B_PIN 18

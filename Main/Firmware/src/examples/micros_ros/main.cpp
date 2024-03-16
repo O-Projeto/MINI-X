@@ -11,6 +11,20 @@
 
 #include "keys.h"
 
+#include "config.h"
+
+#include "cinematic.h"
+
+#include <ESP32Servo.h>
+Servo motor_esquerda;
+Servo motor_direita ;
+
+float linear = 0 ;
+float angular = 0 ;
+float speed_left = 0 ;
+float speed_right = 0 ;
+
+
 
 rcl_subscription_t subscriber;
 geometry_msgs__msg__Twist msg;
@@ -54,10 +68,32 @@ void subscription_callback(const void *msgin)
   const geometry_msgs__msg__Twist *msg = (const geometry_msgs__msg__Twist *)msgin;
   Serial.printf("%f, %f\n", msg->linear.x, msg->angular.z);
   last_control_msec = millis();
+
+  angular = msg->angular.z; 
+  linear = msg->linear.x;
+
+  speed_left =  speed_converter(cinematic_left(angular,linear));
+  speed_right = speed_converter(cinematic_right(angular,linear));
+  motor_esquerda.write(speed_left); 
+  motor_direita.write(speed_right); 
 }
 
 void setup()
 {
+
+
+//this order is important, 
+  motor_direita.attach(pinEsc1); 
+  motor_esquerda.attach(pinEsc2); 
+
+  //dont remove this delay !!!
+  delay(255);
+
+  // init motors 
+  motor_direita.writeMicroseconds(1500); 
+  motor_esquerda.writeMicroseconds(1500); 
+
+
   set_microros_wifi_transports(keys::wifi_ssid, keys::wifi_pass, keys::agent_ip, keys::agent_port);
   delay(2000);
   Serial.begin(115220);

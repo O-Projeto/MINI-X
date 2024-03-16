@@ -3,9 +3,9 @@
 
 namespace keys
 {
-  char wifi_ssid[30] = "Dinossauro_Conectado";
-  char wifi_pass[30] = "Dinossauro_Conectado";
-  char agent_ip[20] = "192.168.1.100";
+  char wifi_ssid[30] = "rededoprojeto";
+  char wifi_pass[30] = "arededoprojeto";
+  char agent_ip[20] = "192.168.0.106";
   unsigned int agent_port = 8888;
 } // namespace keys
 
