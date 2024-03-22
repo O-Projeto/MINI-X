@@ -10,10 +10,15 @@
 #include "cinematic.h"
 #include "odometry.h"
 
+#include "micro_ros.h"
+
+
+
 #include "voltage.h"
 voltage battery_voltage(PIN_BAT);
 float bat_read; 
 
+#define  ROS 1  
 
 #include "controller.h" //PID
 double KP = 0.1 ; //constante correção de erros PID
@@ -50,6 +55,7 @@ float dx,dy,error_pos_linear ;
 int led_color = VERMELHO;
 
 float angular, linear ; 
+float angular_ros, linear_ros ; 
 float angular_pid, linear_pid;
 float speed_right, speed_left;
 bool enable = false;
@@ -96,7 +102,7 @@ float recon_enemy_sides(VL53_sensors sensores);
 
 void setup()
 {
-
+    init_ros();
 
     //this order is important, 
     motor_direita.attach(pinEsc1); 
@@ -152,6 +158,9 @@ void loop()
 
       border_front = rft_front.detect_border();
       border_back = rft_back.detect_border();
+
+      linear_ros = getLinear();
+      angular_ros = getAngular();
        
       if(cr_read==-1){
             led_color =AZUL;
@@ -222,6 +231,9 @@ void loop()
                 linear = 0;
                 angular = 0;
                 break;   
+              case POWER:
+                linear = linear_ros; 
+                angular = angular_ros;
           
                 default:
                 led_color = AZUL ;
@@ -279,6 +291,11 @@ void loop()
 
     motor_esquerda.write(speed_left); 
     motor_direita.write(speed_right); 
+
+
+    ros_loop(sensores.dist[0]);
+    RCCHECK(rclc_executor_spin_some(&executor, RCL_MS_TO_NS(1)));
+
 }
 
 
@@ -330,6 +347,12 @@ void debug_serial(){
       Serial.print(linear);
       Serial.print(" angular: ");
       Serial.print(angular);
+
+      Serial.print(" |Speed ROS:linear: ");
+      Serial.print(linear_ros);
+      Serial.print(" angular: ");
+      Serial.print(angular_ros);
+
       Serial.print(" L: ");
       Serial.print(speed_left);
       Serial.print(" R: ");
