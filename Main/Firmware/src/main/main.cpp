@@ -147,7 +147,12 @@ void setup()
 }
 
 void loop()
-   {
+   {  float* imu_orientation = orientation(); 
+      float* imu_angularVelocity = angular_velocity(); 
+      float* imu_linaerAcceleration = linear_acceleration();
+      float* imu_orientationCovariance = orientation_covariance();
+      float* imu_linaerAccelerationCovariance = linear_acceleration_covariance(); 
+      float* imu_angularVelocityCovariance = angular_velocity_covariance(); 
   
       cr_read = controle_sony.read();
 
@@ -293,7 +298,10 @@ void loop()
     motor_direita.write(speed_right); 
 
 
-    ros_loop(sensores.dist[0]);
+    ros_loop(sensores.dist[0],sensores.dist[2],sensores.dist[1],rft_front.read(),rft_back.read(),cr_read,encoder_esquerda.getCount(),encoder_direita.getCount(),imu_orientation, 
+          imu_angularVelocity, 
+          imu_linaerAcceleration,
+          imu_orientationCovariance,imu_linaerAccelerationCovariance,imu_angularVelocityCovariance);
     RCCHECK(rclc_executor_spin_some(&executor, RCL_MS_TO_NS(1)));
 
 }
