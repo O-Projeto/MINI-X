@@ -11,7 +11,9 @@
 #include <std_msgs/msg/int32.h>
 #include <std_msgs/msg/int64.h>
 #include <geometry_msgs/msg/twist.h>
-#include <sensor_msgs/msg/imu.h>
+#include <micro_ros_utilities/type_utilities.h>
+#include <micro_ros_utilities/string_utilities.h>
+#include <geometry_msgs/msg/pose_stamped.h>
 
 #include "keys.h"
 
@@ -49,8 +51,10 @@ std_msgs__msg__Int64 encoder_left_ticks_m;
 rcl_publisher_t encoder_right_ticks_t;
 std_msgs__msg__Int64 encoder_right_ticks_m;
 
-rcl_publisher_t imu_publisher;
-sensor_msgs__msg__Imu imu_msg;
+rcl_publisher_t pose_t; 
+geometry_msgs__msg__PoseStamped pose_m;
+
+
 
 float speed_linear_ros ;
 float speed_angular_ros ; 
@@ -104,11 +108,6 @@ void init_ros(){
   // create node
   RCCHECK(rclc_node_init_default(&node, "micro_ros_power_node", "", &support));
 
-  RCCHECK(rclc_subscription_init_default(
-      &cmd_vel_subscriber,
-      &node,
-      ROSIDL_GET_MSG_TYPE_SUPPORT(geometry_msgs, msg, Twist),
-      "cmd_vel"));
 
   RCCHECK(rclc_publisher_init_default(
   &distance_left_t,
@@ -159,11 +158,18 @@ void init_ros(){
   ROSIDL_GET_MSG_TYPE_SUPPORT(std_msgs, msg, Int64),
   "zero/encoder/right/ticks"));
 
-  RCCHECK(rclc_publisher_init_best_effort(
-    &imu_publisher,
-    &node,
-    ROSIDL_GET_MSG_TYPE_SUPPORT(sensor_msgs, msg, Imu),
-   "zero/imu"));
+  RCCHECK(rclc_publisher_init_default(
+  &pose_t,
+  &node,
+  ROSIDL_GET_MSG_TYPE_SUPPORT(geometry_msgs, msg, PoseStamped),
+  "zero/pose"));
+
+
+  RCCHECK(rclc_subscription_init_default(
+      &cmd_vel_subscriber,
+      &node,
+      ROSIDL_GET_MSG_TYPE_SUPPORT(geometry_msgs, msg, Twist),
+      "cmd_vel"));
 
 
 
@@ -174,7 +180,7 @@ void init_ros(){
 
 
 void ros_loop(float distance_left,float distance_right,float distance_back, int qre_front, int qre_back, int infra, int encoder_left_ticks,int encoder_right_ticks,
-              float *orientation, float *angular_velocity, float *linear_acceleration,float *orientationCovariance,float *linaerAccelerationCovariance,float *angularVelocityCovariance ){
+              float th , float x, float y ){
 
               distance_left_m.data =  distance_left;
               RCSOFTCHECK(rcl_publish(&distance_left_t, &distance_left_m, NULL));
@@ -200,46 +206,43 @@ void ros_loop(float distance_left,float distance_right,float distance_back, int 
               encoder_right_ticks_m.data =  encoder_right_ticks;
               RCSOFTCHECK(rcl_publish(&encoder_right_ticks_t, &encoder_right_ticks_m, NULL));
 
+
+              double theta_half = th / 2.0;
+              double sin_theta_half = sin(theta_half);
+              double cos_theta_half = cos(theta_half);
+
+              
+
+              pose_m.pose.orientation.x = 0.0;
+              pose_m.pose.orientation.y = 0.0;
+              pose_m.pose.orientation.z = sin_theta_half;
+              pose_m.pose.orientation.w = cos_theta_half;
+              
+              pose_m.pose.position.x = x ; 
+              pose_m.pose.position.y = y; 
+
+              struct timespec tv = {0};
+              clock_gettime(0, &tv);
+
+              pose_m.header.stamp.sec = tv.tv_sec;
+              pose_m.header.stamp.nanosec = tv.tv_nsec;
+
+              pose_m.header.frame_id.size = 20;
+              pose_m.header.frame_id.data = "pose_frame";
+
+
+
+  
+              RCSOFTCHECK(rcl_publish(&pose_t, &pose_m, NULL));
+
+
+
+
               //TO DO 
               //cmd 
               // mpu  
               // odom 
               // bat 
               // pid parameters 
-              imu_msg.header.frame_id.data = "imu_link";
-              imu_msg.header.frame_id.size = 10;
-
-              imu_msg.orientation.x = orientation[0];
-              imu_msg.orientation.y = orientation[1];
-              imu_msg.orientation.z = orientation[2];
-              imu_msg.orientation.w = orientation[3]; 
-
             
-
-              imu_msg.angular_velocity.x = angular_velocity[0];
-              imu_msg.angular_velocity.y = angular_velocity[1];
-              imu_msg.angular_velocity.z = angular_velocity[2];
-
-              imu_msg.linear_acceleration.x = linear_acceleration[0]; 
-              imu_msg.linear_acceleration.y = linear_acceleration[1]; 
-              imu_msg.linear_acceleration.z = linear_acceleration[2]; 
-
-                  for (int i = 0; i < 9; i ++) {
-                    imu_msg.orientation_covariance[i] = orientationCovariance[i];
-                    imu_msg.angular_velocity_covariance[i] =angularVelocityCovariance[i]; 
-                    imu_msg.linear_acceleration_covariance[i] = linaerAccelerationCovariance[i];
-                } 
-
-
-
-
-              RCSOFTCHECK(rmw_uros_sync_session(1000));
-
-              int64_t time = rmw_uros_epoch_millis();
-
-              imu_msg.header.stamp.sec = time;
-
-              // Publish IMU data
-              RCSOFTCHECK(rcl_publish(&imu_publisher, &imu_msg, NULL));
-
               }

@@ -298,10 +298,7 @@ void loop()
     motor_direita.write(speed_right); 
 
 
-    ros_loop(sensores.dist[0],sensores.dist[2],sensores.dist[1],rft_front.read(),rft_back.read(),cr_read,encoder_esquerda.getCount(),encoder_direita.getCount(),imu_orientation, 
-          imu_angularVelocity, 
-          imu_linaerAcceleration,
-          imu_orientationCovariance,imu_linaerAccelerationCovariance,imu_angularVelocityCovariance);
+    ros_loop(sensores.dist[0],sensores.dist[2],sensores.dist[1],rft_front.read(),rft_back.read(),cr_read,encoder_esquerda.getCount(),encoder_direita.getCount(),th,x,y);
     RCCHECK(rclc_executor_spin_some(&executor, RCL_MS_TO_NS(1)));
 
 }

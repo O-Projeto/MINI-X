@@ -15,8 +15,7 @@
 #include <micro_ros_utilities/string_utilities.h>
 
 #include <rmw_microros/rmw_microros.h>
-#include <std_msgs/msg/int16.h>
-
+#include <std_msgs/msg/int32.h>
 
 #include "keys.h"
 
@@ -61,8 +60,15 @@ extern "C" int clock_gettime(clockid_t unused, struct timespec *tp);
 const int watch_dog_msec = 1000;
 int last_control_msec = 0;
 
+rcl_publisher_t distance_back_t;
+std_msgs__msg__Int32 distance_back_m;
+
 rcl_publisher_t pose_t; 
 geometry_msgs__msg__PoseStamped pose_m;
+
+
+
+
 
 #define RCCHECK(fn)              \
   {                              \
@@ -95,13 +101,14 @@ void subscription_callback(const void *msgin)
 {
   const geometry_msgs__msg__Twist *msg = (const geometry_msgs__msg__Twist *)msgin;
   Serial.printf("%f, %f\n", msg->linear.x, msg->angular.z);
-  last_control_msec = millis();
+  // last_control_msec = millis();
 
   angular = msg->angular.z; 
   linear = msg->linear.x;
   
   speed_left =  speed_converter(cinematic_left(angular,linear));
   speed_right = speed_converter(cinematic_right(angular,linear));
+  // Serial.println(speed_left);
   motor_esquerda.write(speed_left); 
   motor_direita.write(speed_right); 
  
@@ -137,6 +144,7 @@ void setup()
   sensores.sensorsInit();
 
 
+
   Serial.begin(115220);
 
   allocator = rcl_get_default_allocator();
@@ -147,18 +155,26 @@ void setup()
   // create node
   RCCHECK(rclc_node_init_default(&node, "micro_ros_arduino_node", "", &support));
 
-  // create subscriber
-  RCCHECK(rclc_subscription_init_default(
-      &subscriber,
-      &node,
-      ROSIDL_GET_MSG_TYPE_SUPPORT(geometry_msgs, msg, Twist),
-      "cmd_vel"));
+  // create subscriber ros2 run tf2_ros static_transform_publisher 0 0 0 00 00 00 map pose_frame
+
 
   RCCHECK(rclc_publisher_init_default(
   &pose_t,
   &node,
   ROSIDL_GET_MSG_TYPE_SUPPORT(geometry_msgs, msg, PoseStamped),
   "zero/pose"));
+  RCCHECK(rclc_publisher_init_default(
+  &distance_back_t,
+  &node,
+  ROSIDL_GET_MSG_TYPE_SUPPORT(std_msgs, msg, Int32),
+  "zero/distance/back"));
+
+  RCCHECK(rclc_subscription_init_default(
+      &subscriber,
+      &node,
+      ROSIDL_GET_MSG_TYPE_SUPPORT(geometry_msgs, msg, Twist),
+      "cmd_vel"));
+
   // create executor
   RCCHECK(rclc_executor_init(&executor, &support.context, 1, &allocator));
   RCCHECK(rclc_executor_add_subscription(&executor, &subscriber, &msg, &subscription_callback, ON_NEW_DATA));
@@ -168,48 +184,50 @@ void loop()
 { 
 
 
-  sensores.distanceRead();
+  // sensores.distanceRead();
 
-  struct timespec tv = {0};
-  clock_gettime(0, &tv);
+  // struct timespec tv = {0};
+  // clock_gettime(0, &tv);
 
-  if (millis() - last_control_msec > watch_dog_msec)
-  {
-    Serial.println(".");
-  }
-    imu_ypr = imu_get_ypr(); 
-    odom(encoder_esquerda.getCount(), -1*encoder_direita.getCount(),imu_ypr[0]);
+  // if (millis() - last_control_msec > watch_dog_msec)
+  // {
+  //   Serial.println(".");
+  // }
+  //   imu_ypr = imu_get_ypr(); 
+  //   odom(encoder_esquerda.getCount(), -1*encoder_direita.getCount(),imu_ypr[0]);
   
-    double theta_half = th / 2.0;
-    double sin_theta_half = sin(theta_half);
-    double cos_theta_half = cos(theta_half);
+  //   double theta_half = th / 2.0;
+  //   double sin_theta_half = sin(theta_half);
+  //   double cos_theta_half = cos(theta_half);
 
     
 
-    pose_m.pose.orientation.x = 0.0;
-    pose_m.pose.orientation.y = 0.0;
-    pose_m.pose.orientation.z = sin_theta_half;
-    pose_m.pose.orientation.w = cos_theta_half;
+  //   pose_m.pose.orientation.x = 0.0;
+  //   pose_m.pose.orientation.y = 0.0;
+  //   pose_m.pose.orientation.z = sin_theta_half;
+  //   pose_m.pose.orientation.w = cos_theta_half;
     
-  pose_m.pose.position.x = x ; 
-  pose_m.pose.position.y = y; 
+  // pose_m.pose.position.x = x ; 
+  // pose_m.pose.position.y = y; 
 
 
 
-  pose_m.header.stamp.sec = tv.tv_sec;
-  pose_m.header.stamp.nanosec = tv.tv_nsec;
+  // pose_m.header.stamp.sec = tv.tv_sec;
+  // pose_m.header.stamp.nanosec = tv.tv_nsec;
 
-  pose_m.header.frame_id.size = 20;
-  pose_m.header.frame_id.data = "pose_frame";
+  // pose_m.header.frame_id.size = 20;
+  // pose_m.header.frame_id.data = "pose_frame";
 
-  sensores.dist[0];
-  sensores.dist[1];
-  sensores.dist[2];
+
+  // distance_back_m.data =  sensores.dist[1];
+  // RCSOFTCHECK(rcl_publish(&distance_back_t, &distance_back_m, NULL));
+
+  
 
 
 
   
 
-  RCSOFTCHECK(rcl_publish(&pose_t, &pose_m, NULL));
+  // RCSOFTCHECK(rcl_publish(&pose_t, &pose_m, NULL));
   RCCHECK(rclc_executor_spin_some(&executor, RCL_MS_TO_NS(1)));
 }

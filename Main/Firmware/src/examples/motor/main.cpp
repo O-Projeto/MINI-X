@@ -4,7 +4,7 @@
 Servo esc;
 
 #define pinPot 13
-#define pinEsc 32
+#define pinEsc 33
 
 void setup()
 {
