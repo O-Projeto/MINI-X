@@ -3,7 +3,11 @@
 //motors 
 #define MOTOR_LEFT_PIN 32
 
+
 #define MOTOR_RIGH_PIN 33
+
+
+#define N_SENSOR 3
 
 #define pinEsc2 32
 #define pinEsc1 33

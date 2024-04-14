@@ -16,6 +16,7 @@
 
 #include <rmw_microros/rmw_microros.h>
 #include <std_msgs/msg/int32.h>
+#include <std_msgs/msg/float32.h>
 
 #include "keys.h"
 
@@ -34,17 +35,31 @@ ESP32Encoder encoder_direita;
 #include "odometry.h"
 #include "mpu.h" 
 
+bool manual = false;
+
+#include "controller.h" //PID
+float KP = 0.58 ; //constante correção de erros PID
+float KI = 2;
+
+Controller balancer_controller(KP,KI,0); 
+
 VL53_sensors sensores;
 
 bool _imu_connect; 
 bool _connect = false;
 float* imu_ypr ;
 
-float linear = 0 ;
-float angular = 0 ;
+float linear_manual = 0 ;
+float angular_manual = 0 ;
+
+float linear_auto = 0 ;
+float angular_auto = 0 ;
+
+
 float speed_left = 0 ;
 float speed_right = 0 ;
-
+float pid = 0 ;
+float set_point = 0 ;
 
 
 rcl_subscription_t subscriber;
@@ -66,8 +81,26 @@ std_msgs__msg__Int32 distance_back_m;
 rcl_publisher_t pose_t; 
 geometry_msgs__msg__PoseStamped pose_m;
 
+rcl_publisher_t pid_p_t;
+std_msgs__msg__Int32 kp_p__m;
+
+rcl_publisher_t pid_i_t;
+std_msgs__msg__Int32 pid_i_m;
+
+rcl_publisher_t pid_d_t;
+std_msgs__msg__Int32 pid_d_m;
 
 
+rcl_publisher_t pid_out_t;
+std_msgs__msg__Int32 pid_out_m;
+
+
+rcl_publisher_t sp_t;
+std_msgs__msg__Int32 sp_t;
+
+
+rcl_publisher_t yaw_t;
+std_msgs__msg__Int32 yaw_m;
 
 
 #define RCCHECK(fn)              \
@@ -103,15 +136,8 @@ void subscription_callback(const void *msgin)
   Serial.printf("%f, %f\n", msg->linear.x, msg->angular.z);
   // last_control_msec = millis();
 
-  angular = msg->angular.z; 
-  linear = msg->linear.x;
-  
-  speed_left =  speed_converter(cinematic_left(angular,linear));
-  speed_right = speed_converter(cinematic_right(angular,linear));
-  // Serial.println(speed_left);
-  motor_esquerda.write(speed_left); 
-  motor_direita.write(speed_right); 
- 
+  angular_manual = msg->angular.z; 
+  linear_manual = msg->linear.x;
 
 }
 
@@ -141,8 +167,7 @@ void setup()
 
 
  
-  sensores.sensorsInit();
-
+  // sensores.sensorsInit();
 
 
   Serial.begin(115220);
@@ -186,48 +211,95 @@ void loop()
 
   // sensores.distanceRead();
 
-  // struct timespec tv = {0};
-  // clock_gettime(0, &tv);
+  struct timespec tv = {0};
+  clock_gettime(0, &tv);
 
   // if (millis() - last_control_msec > watch_dog_msec)
   // {
   //   Serial.println(".");
   // }
-  //   imu_ypr = imu_get_ypr(); 
-  //   odom(encoder_esquerda.getCount(), -1*encoder_direita.getCount(),imu_ypr[0]);
+    imu_ypr = imu_get_ypr(); 
+    odom(encoder_esquerda.getCount(), -1*encoder_direita.getCount(),imu_ypr[0]);
   
-  //   double theta_half = th / 2.0;
-  //   double sin_theta_half = sin(theta_half);
-  //   double cos_theta_half = cos(theta_half);
+    double theta_half = th / 2.0;
+    double sin_theta_half = sin(theta_half);
+    double cos_theta_half = cos(theta_half);
 
     
 
-  //   pose_m.pose.orientation.x = 0.0;
-  //   pose_m.pose.orientation.y = 0.0;
-  //   pose_m.pose.orientation.z = sin_theta_half;
-  //   pose_m.pose.orientation.w = cos_theta_half;
+    pose_m.pose.orientation.x = 0.0;
+    pose_m.pose.orientation.y = 0.0;
+    pose_m.pose.orientation.z = sin_theta_half;
+    pose_m.pose.orientation.w = cos_theta_half;
     
-  // pose_m.pose.position.x = x ; 
-  // pose_m.pose.position.y = y; 
+  pose_m.pose.position.x = x ; 
+  pose_m.pose.position.y = y; 
 
 
 
-  // pose_m.header.stamp.sec = tv.tv_sec;
-  // pose_m.header.stamp.nanosec = tv.tv_nsec;
+  pose_m.header.stamp.sec = tv.tv_sec;
+  pose_m.header.stamp.nanosec = tv.tv_nsec;
 
-  // pose_m.header.frame_id.size = 20;
-  // pose_m.header.frame_id.data = "pose_frame";
+  pose_m.header.frame_id.size = 20;
+  pose_m.header.frame_id.data = "pose_frame";
 
 
-  // distance_back_m.data =  sensores.dist[1];
-  // RCSOFTCHECK(rcl_publish(&distance_back_t, &distance_back_m, NULL));
+  distance_back_m.data =  sensores.dist[1];
 
+
+
+  pid = balancer_controller.output(imu_ypr[0],set_point);
+
+  // add saturation 
+
+  if(pid>0.3){
+    pid = 0.3;
+  }
+  if(pid <-0.3){
+    pid = -0.3;
+  }
   
+  //tolerancia
+  if(balancer_controller.error < 0.37 && balancer_controller.error > -0.37 ){
+      pid = 0 ;
+  }
+
+
+  //vel minima pro robo andar 
+  if(pid > 0 && pid < 0.17){
+    pid = 0.18 ; 
+  }
+
+  if(pid < 0 && pid > -0.17){
+    pid = -0.18 ; 
+  }
+
+  angular_auto = pid ; 
+
+  if(manual){
+
+    speed_left =  speed_converter(-cinematic_left(angular_manual,linear_manual));
+    speed_right = speed_converter(cinematic_right(angular_manual,linear_manual));
+
+  }else{
+    speed_left =  speed_converter(-cinematic_left(angular_auto,linear_auto));
+    speed_right = speed_converter(cinematic_right(angular_auto,linear_auto));
+  }
+
+  // Serial.println(speed_left);
+  motor_esquerda.write(speed_left); 
+  motor_direita.write(speed_right); 
 
 
 
-  
-
-  // RCSOFTCHECK(rcl_publish(&pose_t, &pose_m, NULL));
+  RCSOFTCHECK(rcl_publish(&distance_back_t, &distance_back_m, NULL));
+  RCSOFTCHECK(rcl_publish(&pose_t, &pose_m, NULL));
   RCCHECK(rclc_executor_spin_some(&executor, RCL_MS_TO_NS(1)));
+
+  balancer_controller.debug();
+  Serial.print(" angular_auto ");
+  Serial.print(angular_auto);
+  Serial.println("");
 }
+
+
