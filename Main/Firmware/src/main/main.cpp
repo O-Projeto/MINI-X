@@ -184,7 +184,7 @@ void loop()
         //   set_point = 0 ;
         // }
 
-        pid = balancer_controller.output(imu_ypr[0],set_point);
+        pid = balancer_controller.output(set_point,imu_ypr[0]);
         error_angular = balancer_controller.error ; 
         angular = pid ; 
 

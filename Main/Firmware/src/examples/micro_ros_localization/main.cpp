@@ -9,8 +9,6 @@
 #include <geometry_msgs/msg/twist.h>
 #include <geometry_msgs/msg/pose_stamped.h>
 
-#include "VL53_sensors.h"
-
 #include <micro_ros_utilities/type_utilities.h>
 #include <micro_ros_utilities/string_utilities.h>
 
@@ -38,12 +36,14 @@ ESP32Encoder encoder_direita;
 bool manual = false;
 
 #include "controller.h" //PID
-float KP = 0.58 ; //constante correção de erros PID
-float KI = 2;
+float KP = -0.058 ; //constante correção de erros PID
+float KI = -0.8;
 
 Controller balancer_controller(KP,KI,0); 
 
-VL53_sensors sensores;
+// #define  DEBUG  
+
+
 
 bool _imu_connect; 
 bool _connect = false;
@@ -75,32 +75,35 @@ extern "C" int clock_gettime(clockid_t unused, struct timespec *tp);
 const int watch_dog_msec = 1000;
 int last_control_msec = 0;
 
-rcl_publisher_t distance_back_t;
-std_msgs__msg__Int32 distance_back_m;
-
 rcl_publisher_t pose_t; 
 geometry_msgs__msg__PoseStamped pose_m;
 
+
+//pid
+
+//p
 rcl_publisher_t pid_p_t;
-std_msgs__msg__Int32 kp_p__m;
+std_msgs__msg__Float32 pid_p__m;
 
+// i 
 rcl_publisher_t pid_i_t;
-std_msgs__msg__Int32 pid_i_m;
+std_msgs__msg__Float32 pid_i_m;
 
+//d 
 rcl_publisher_t pid_d_t;
-std_msgs__msg__Int32 pid_d_m;
+std_msgs__msg__Float32 pid_d_m;
 
-
+// output
 rcl_publisher_t pid_out_t;
-std_msgs__msg__Int32 pid_out_m;
+std_msgs__msg__Float32 pid_out_m;
 
-
+//setpoint 
 rcl_publisher_t sp_t;
-std_msgs__msg__Int32 sp_t;
+std_msgs__msg__Float32 sp_m;
 
-
-rcl_publisher_t yaw_t;
-std_msgs__msg__Int32 yaw_m;
+//feedback
+rcl_publisher_t feedback_t;
+std_msgs__msg__Float32 feedback_m;
 
 
 #define RCCHECK(fn)              \
@@ -124,7 +127,9 @@ void error_loop()
 {
   while (1)
   {
-    Serial.printf("error_loop\n");
+    #ifdef  DEBUG
+     Serial.printf("error_loop\n");
+    #endif  //DEBUG
     delay(1);
   }
 }
@@ -133,7 +138,10 @@ void error_loop()
 void subscription_callback(const void *msgin)
 {
   const geometry_msgs__msg__Twist *msg = (const geometry_msgs__msg__Twist *)msgin;
-  Serial.printf("%f, %f\n", msg->linear.x, msg->angular.z);
+  
+  #ifdef  DEBUG
+    Serial.printf("%f, %f\n", msg->linear.x, msg->angular.z);
+  #endif  //DEBUG
   // last_control_msec = millis();
 
   angular_manual = msg->angular.z; 
@@ -165,12 +173,9 @@ void setup()
   set_microros_wifi_transports(keys::wifi_ssid, keys::wifi_pass, keys::agent_ip, keys::agent_port);
   delay(2000);
 
-
- 
-  // sensores.sensorsInit();
-
-
-  Serial.begin(115220);
+  #ifdef  DEBUG
+    Serial.begin(115220);
+  #endif  //DEBUG
 
   allocator = rcl_get_default_allocator();
 
@@ -188,11 +193,46 @@ void setup()
   &node,
   ROSIDL_GET_MSG_TYPE_SUPPORT(geometry_msgs, msg, PoseStamped),
   "zero/pose"));
+ 
+  //------------pid 
+
   RCCHECK(rclc_publisher_init_default(
-  &distance_back_t,
+  &pid_p_t,
   &node,
-  ROSIDL_GET_MSG_TYPE_SUPPORT(std_msgs, msg, Int32),
-  "zero/distance/back"));
+  ROSIDL_GET_MSG_TYPE_SUPPORT(std_msgs, msg, Float32),
+  "zero/get/pid/p"));
+
+  RCCHECK(rclc_publisher_init_default(
+  &pid_i_t,
+  &node,
+  ROSIDL_GET_MSG_TYPE_SUPPORT(std_msgs, msg, Float32),
+  "zero/get/pid/i"));
+
+  RCCHECK(rclc_publisher_init_default(
+  &pid_d_t,
+  &node,
+  ROSIDL_GET_MSG_TYPE_SUPPORT(std_msgs, msg, Float32),
+  "zero/get/pid/d"));
+
+  RCCHECK(rclc_publisher_init_default(
+  &pid_out_t,
+  &node,
+  ROSIDL_GET_MSG_TYPE_SUPPORT(std_msgs, msg, Float32),
+  "zero/get/pid/out"));
+
+  RCCHECK(rclc_publisher_init_default(
+  &sp_t,
+  &node,
+  ROSIDL_GET_MSG_TYPE_SUPPORT(std_msgs, msg, Float32),
+  "zero/get/pid/setpoint"));
+
+  RCCHECK(rclc_publisher_init_default(
+  &feedback_t,
+  &node,
+  ROSIDL_GET_MSG_TYPE_SUPPORT(std_msgs, msg, Float32),
+  "zero/get/pid/feedback"));
+  
+
 
   RCCHECK(rclc_subscription_init_default(
       &subscriber,
@@ -208,29 +248,23 @@ void setup()
 void loop()
 { 
 
-
-  // sensores.distanceRead();
-
+  //get time 
   struct timespec tv = {0};
   clock_gettime(0, &tv);
 
-  // if (millis() - last_control_msec > watch_dog_msec)
-  // {
-  //   Serial.println(".");
-  // }
-    imu_ypr = imu_get_ypr(); 
-    odom(encoder_esquerda.getCount(), -1*encoder_direita.getCount(),imu_ypr[0]);
+  imu_ypr = imu_get_ypr(); 
+  odom(encoder_esquerda.getCount(), -1*encoder_direita.getCount(),imu_ypr[0]);
+
+  double theta_half = th / 2.0;
+  double sin_theta_half = sin(theta_half);
+  double cos_theta_half = cos(theta_half);
+
   
-    double theta_half = th / 2.0;
-    double sin_theta_half = sin(theta_half);
-    double cos_theta_half = cos(theta_half);
 
-    
-
-    pose_m.pose.orientation.x = 0.0;
-    pose_m.pose.orientation.y = 0.0;
-    pose_m.pose.orientation.z = sin_theta_half;
-    pose_m.pose.orientation.w = cos_theta_half;
+  pose_m.pose.orientation.x = 0.0;
+  pose_m.pose.orientation.y = 0.0;
+  pose_m.pose.orientation.z = cos_theta_half;
+  pose_m.pose.orientation.w = sin_theta_half;
     
   pose_m.pose.position.x = x ; 
   pose_m.pose.position.y = y; 
@@ -244,34 +278,30 @@ void loop()
   pose_m.header.frame_id.data = "pose_frame";
 
 
-  distance_back_m.data =  sensores.dist[1];
-
-
-
-  pid = balancer_controller.output(imu_ypr[0],set_point);
+  pid = balancer_controller.output(set_point,imu_ypr[0]);
 
   // add saturation 
 
-  if(pid>0.3){
-    pid = 0.3;
+  if(pid>0.4){
+    pid = 0.4;
   }
-  if(pid <-0.3){
-    pid = -0.3;
+  if(pid <-0.4){
+    pid = -0.4;
   }
   
   //tolerancia
-  if(balancer_controller.error < 0.37 && balancer_controller.error > -0.37 ){
+  if(balancer_controller.error < 0.2 && balancer_controller.error > -0.2 ){
       pid = 0 ;
   }
 
 
   //vel minima pro robo andar 
-  if(pid > 0 && pid < 0.17){
-    pid = 0.18 ; 
+  if(pid > 0 && pid < 0.14){
+    pid = 0.14 ; 
   }
 
-  if(pid < 0 && pid > -0.17){
-    pid = -0.18 ; 
+  if(pid < 0 && pid > -0.14){
+    pid = -0.14 ; 
   }
 
   angular_auto = pid ; 
@@ -290,16 +320,35 @@ void loop()
   motor_esquerda.write(speed_left); 
   motor_direita.write(speed_right); 
 
+  pid_p__m.data =  balancer_controller.proportional();
+  RCSOFTCHECK(rcl_publish(&pid_p_t, &pid_p__m, NULL));
+
+  pid_i_m.data =  balancer_controller.integral;
+  RCSOFTCHECK(rcl_publish(&pid_i_t, &pid_i_m, NULL));
+
+  // pid_d_m.data =  balancer_controller.derivative() + balancer_controller.proportional();
+   pid_d_m.data = angular_auto;
+  RCSOFTCHECK(rcl_publish(&pid_d_t, &pid_d_m, NULL));
+
+  pid_out_m.data =  balancer_controller.output_value;
+  RCSOFTCHECK(rcl_publish(&pid_out_t, &pid_out_m, NULL));
+
+  sp_m.data =  balancer_controller.setpoint_;
+  RCSOFTCHECK(rcl_publish(&sp_t, &sp_m, NULL));
+
+  feedback_m.data =  balancer_controller.current_value_;
+  RCSOFTCHECK(rcl_publish(&feedback_t, &feedback_m, NULL));
 
 
-  RCSOFTCHECK(rcl_publish(&distance_back_t, &distance_back_m, NULL));
   RCSOFTCHECK(rcl_publish(&pose_t, &pose_m, NULL));
   RCCHECK(rclc_executor_spin_some(&executor, RCL_MS_TO_NS(1)));
 
-  balancer_controller.debug();
-  Serial.print(" angular_auto ");
-  Serial.print(angular_auto);
-  Serial.println("");
+  #ifdef  DEBUG
+    balancer_controller.debug();
+    Serial.print(" angular_auto ");
+    Serial.print(angular_auto);
+    Serial.println("");
+  #endif  //DEBUG
 }
 
 
