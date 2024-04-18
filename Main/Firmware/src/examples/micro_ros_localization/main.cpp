@@ -36,13 +36,13 @@ ESP32Encoder encoder_direita;
 bool manual = false;
 
 #include "controller.h" //PID
-float KP = -0.000 ; //constante correção de erros PID
-float KI = 0.0;
+float KP = -0.018 ; //constante correção de erros PID
+float KI = -0.0001;
 float KD = -0.0000;
 
 Controller balancer_controller(KP,KI,KD); 
 
-#define  DEBUG  
+// #define  DEBUG  
 
 
 
@@ -291,18 +291,18 @@ void loop()
   }
   
   //tolerancia
-  if(balancer_controller.error < 0.2 && balancer_controller.error > -0.2 ){
+  if(balancer_controller.error < 0.25 && balancer_controller.error > -0.25 ){
       pid = 0 ;
   }
 
 
   //vel minima pro robo andar 
-  if(pid > 0 && pid < 0.14){
-    pid = 0.14 ; 
+  if(pid > 0 && pid < 0.13){
+    pid = 0.13 ; 
   }
 
-  if(pid < 0 && pid > -0.14){
-    pid = -0.14 ; 
+  if(pid < 0 && pid > -0.13){
+    pid = -0.13 ; 
   }
 
   angular_auto = pid ; 
