@@ -36,12 +36,13 @@ ESP32Encoder encoder_direita;
 bool manual = false;
 
 #include "controller.h" //PID
-float KP = -0.058 ; //constante correção de erros PID
-float KI = -0.8;
+float KP = -0.000 ; //constante correção de erros PID
+float KI = 0.0;
+float KD = -0.0000;
 
-Controller balancer_controller(KP,KI,0); 
+Controller balancer_controller(KP,KI,KD); 
 
-// #define  DEBUG  
+#define  DEBUG  
 
 
 
@@ -323,20 +324,20 @@ void loop()
   pid_p__m.data =  balancer_controller.proportional();
   RCSOFTCHECK(rcl_publish(&pid_p_t, &pid_p__m, NULL));
 
-  pid_i_m.data =  balancer_controller.integral;
+  pid_i_m.data =  balancer_controller.integrative();
   RCSOFTCHECK(rcl_publish(&pid_i_t, &pid_i_m, NULL));
 
   // pid_d_m.data =  balancer_controller.derivative() + balancer_controller.proportional();
-   pid_d_m.data = angular_auto;
+   pid_d_m.data = balancer_controller.derivative();
   RCSOFTCHECK(rcl_publish(&pid_d_t, &pid_d_m, NULL));
 
-  pid_out_m.data =  balancer_controller.output_value;
+  pid_out_m.data =  angular_auto;
   RCSOFTCHECK(rcl_publish(&pid_out_t, &pid_out_m, NULL));
 
   sp_m.data =  balancer_controller.setpoint_;
   RCSOFTCHECK(rcl_publish(&sp_t, &sp_m, NULL));
 
-  feedback_m.data =  balancer_controller.current_value_;
+  feedback_m.data = imu_ypr[0] ;
   RCSOFTCHECK(rcl_publish(&feedback_t, &feedback_m, NULL));
 
 
