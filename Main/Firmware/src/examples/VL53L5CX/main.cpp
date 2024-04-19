@@ -24,35 +24,35 @@ void loop()
 
   //Poll sensor for new data
   VL53L5_debug();
-  int  y = 5;
-  int avg;
-  int sum;
-  Serial.print(imageWidth);
+  // int  y = 5;
+  // int avg;
+  // int sum;
+  // Serial.print(imageWidth);
 
       
-        for (int x = imageWidth - 1 ; x >= 0 ; x--)
-        {
-          Serial.print("\t");
-          Serial.print("X :");
-          Serial.print(x);
-           Serial.print(" ");
-          Serial.print(VL53L5_data.distance_mm[x + y]);
+  //       for (int x = imageWidth - 1 ; x >= 0 ; x--)
+  //       {
+  //         Serial.print("\t");
+  //         Serial.print("X :");
+  //         Serial.print(x);
+  //          Serial.print(" ");
+  //         Serial.print(VL53L5_data.distance_mm[x + y]);
           
-        }
-        Serial.print("\t");
-        for (int x = imageWidth - 1 ; x >= 0 ; x--)
-        {
+  //       }
+  //       Serial.print("\t");
+  //       for (int x = imageWidth - 1 ; x >= 0 ; x--)
+  //       {
           
-          avg += VL53L5_data.distance_mm[x + y]*x*1000;
-          sum += VL53L5_data.distance_mm[x + y];
+  //         avg += VL53L5_data.distance_mm[x + y]*x*1000;
+  //         // sum += VL53L5_data.distance_mm[x + y];
           
-        }
+  //       }
 
-        float position = avg/sum; 
+        // float position = avg/sum; 
       //  SerialBT.print(position);
-       Serial.print(position);
+      //  Serial.print(position);
       
-  Serial.println();
+  // Serial.println();
   // SerialBT.println();
-  delay(100); //Small delay between polling
+  delay(10); //Small delay between polling
 }

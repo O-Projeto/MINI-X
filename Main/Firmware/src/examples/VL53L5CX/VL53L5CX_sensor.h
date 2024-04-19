@@ -40,6 +40,8 @@ TwoWire Wire2CX((uint8_t)sizeof(uint8_t));
 static const uint8_t cxSDA = 15;
 static const uint8_t cxSCL = 4;
 
+float avg ,sum ; 
+
 SparkFun_VL53L5CX myImager;
 VL53L5CX_ResultsData VL53L5_data; // Result data class structure, 1356 byes of RAM
 
@@ -74,7 +76,9 @@ void VL53L5_init(){
     Serial.print(timeTaken, 3);
     Serial.println("s");
 
-    myImager.setResolution(8*8); //Enable all 64 pads
+    myImager.setResolution(8*8); //Enable all 16 pads
+    myImager.setSharpenerPercent(50);
+    myImager.setRangingFrequency(15);
 
     imageResolution = myImager.getResolution(); //Query sensor for current resolution - either 4x4 or 8x8
     imageWidth = sqrt(imageResolution); //Calculate printing width
@@ -88,22 +92,29 @@ void VL53L5_init(){
 
 void VL53L5_debug(){
 
+  avg = 0; 
+  sum = 0; 
+
     if (myImager.isDataReady() == true)
   {
     if (myImager.getRangingData(&VL53L5_data)) //Read distance data into array
     {
-      //The ST library returns the data transposed from zone mapping shown in datasheet
-    //   //Pretty-print data with increasing y, decreasing x to reflect reality
-    //   for (int y = 0 ; y <= imageWidth * (imageWidth - 1) ; y += imageWidth)
-    //   {
-    //     for (int x = imageWidth - 1 ; x >= 0 ; x--)
-    //     {
-    //       Serial.print("\t");
-    //       Serial.print(VL53L5_data.distance_mm[x + y]);
-    //     }
-    //     Serial.println();
-    //   }
-    //   Serial.println();
+      // The ST library returns the data transposed from zone mapping shown in datasheet
+      //Pretty-print data with increasing y, decreasing x to reflect reality
+      // for (int y = 0 ; y <= imageWidth * (imageWidth - 1) ; y += imageWidth)
+      // {
+        for (int x = imageWidth - 1 ; x >= 0 ; x--)
+        {
+          // Serial.print("\t");
+          // Serial.print(VL53L5_data.distance_mm[x]);
+
+          avg += VL53L5_data.distance_mm[x]*x*1000;
+          sum += VL53L5_data.distance_mm[x];
+        }
+        Serial.print(avg/sum);
+        Serial.println();
+      // }
+      // Serial.println();
     }
   }
 
