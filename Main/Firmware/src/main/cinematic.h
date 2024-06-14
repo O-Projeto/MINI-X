@@ -33,6 +33,8 @@ float cinematic_right(float linear, float angular){
 
 }
 
+
+
 float cinematic_left(float linear, float  angular){
 
   float left_speed = (linear - angular*L)/R ;

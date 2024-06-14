@@ -90,7 +90,7 @@ void VL53L5_init(){
 }
 
 
-void VL53L5_debug(){
+float VL53L5_get_position(){
 
   avg = 0; 
   sum = 0; 
@@ -111,8 +111,9 @@ void VL53L5_debug(){
           avg += VL53L5_data.distance_mm[x]*x*1000;
           sum += VL53L5_data.distance_mm[x];
         }
-        Serial.print(avg/sum);
-        Serial.println();
+        // Serial.print(avg/sum);
+        // Serial.println();
+        return avg/sum;
       // }
       // Serial.println();
     }

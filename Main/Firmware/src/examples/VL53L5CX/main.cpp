@@ -23,7 +23,8 @@ void loop()
 
 
   //Poll sensor for new data
-  VL53L5_debug();
+  // VL53L5_debug();
+  VL53L5_get_position(); 
   // int  y = 5;
   // int avg;
   // int sum;

@@ -1,35 +1,29 @@
-#include <Arduino.h>
-#include <ESP32Servo.h>
+    #include <Arduino.h>
+    #include <ESP32Servo.h>
 
-Servo esc_one;
-Servo esc_two;
+    // #include "motor_brushless.h"
+    #include "motor_brushless.h"
 
-#define pinPot 13
-#define pinEsc 33
+    // 33 left 
+    //32 tight
 
-void setup()
-{
-esc_one.attach(pinEsc); 
-esc_two.attach(32);
-// esc.writeMicroseconds(1500); 
-// Serial.begin(112500);
+    motor_brushless motor_left(33);
+    motor_brushless motor_right(32);
 
-delay(255);
+    void setup(){
+        // Serial.begin(9600);
+        //  delay(10000);
+        motor_left.init();
+        motor_right.init();
+        // Serial.print("init init");
+    }
 
-// for(int i = 1500; i<=2000; i++){
-//     esc.writeMicroseconds(i); 
-// }
-esc_one.writeMicroseconds(1500); 
-esc_two.writeMicroseconds(1500);
-}
+    void loop(){
 
-void loop()
-{
+       delay(2000); 
+
+       motor_left.write(70);
+       motor_right.write(70);
+    }
 
 
-delay(2000); 
-
-esc_one.writeMicroseconds(1800); 
-esc_two.writeMicroseconds(1800);
-
-}

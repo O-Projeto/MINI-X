@@ -5,25 +5,25 @@
 #include "led_rgb.h"
 #include "controle_juiz.h"
 #include "VL53_sensors.h"
-// #include "VL53L5CX_sensor.h"
+#include "VL53L5CX_sensor.h"
 #include "mpu.h" //giroscopio 
 #include "cinematic.h"
 #include "odometry.h"
-
-#include "micro_ros.h"
-
 
 
 #include "voltage.h"
 voltage battery_voltage(PIN_BAT);
 float bat_read; 
+bool bat_blink = false ; 
 
 #define  ROS 1  
 
 #include "controller.h" //PID
-double KP = 0.1 ; //constante correção de erros PID
+float KP = -0.018 ; //constante correção de erros PID
+float KI = -0.001;
+float KD = -0.0000;
 
-Controller balancer_controller(KP,0,0); 
+Controller balancer_controller(KP,KI,KD); 
 
 
 unsigned long previousMillis = 0; //unsigned significa que não guarda numero negativo
@@ -102,8 +102,6 @@ float recon_enemy_sides(VL53_sensors sensores);
 
 void setup()
 {
-    init_ros();
-
     //this order is important, 
     motor_direita.attach(pinEsc1); 
     motor_esquerda.attach(pinEsc2); 
@@ -133,7 +131,8 @@ void setup()
 
     digitalWrite(2, !_imu_connect); 
 
-    // VL53L5_init();
+    VL53L5_init();
+
     
     //init led 
     LED.init();
@@ -164,9 +163,6 @@ void loop()
       border_front = rft_front.detect_border();
       border_back = rft_back.detect_border();
 
-      linear_ros = getLinear();
-      angular_ros = getAngular();
-       
       if(cr_read==-1){
             led_color =AZUL;
           }
@@ -176,24 +172,38 @@ void loop()
 
         sensores.distanceRead();
         imu_ypr = imu_get_ypr(); 
+
+        // float front_position = VL53L5_get_position();
         set_point = recon_enemy_sides(sensores);
-        // if(border_front){
-        //   set_point = PI ; 
-        // }
-        // if(border_back){
-        //   set_point = 0 ;
-        // }
+        // set_point = map(front_position,3000,4000,-0.5,0.5);
+
 
         pid = balancer_controller.output(set_point,imu_ypr[0]);
-        error_angular = balancer_controller.error ; 
+
+        if(pid>0.4){
+          pid = 0.4;
+        }
+        if(pid <-0.4){
+          pid = -0.4;
+        }
+        
+        //tolerancia
+        if(balancer_controller.error < 0.25 && balancer_controller.error > -0.25 ){
+            pid = 0 ;
+        }
+
+
+        //vel minima pro robo andar 
+        if(pid > 0 && pid < 0.13){
+          pid = 0.13 ; 
+        }
+
+        if(pid < 0 && pid > -0.13){
+          pid = -0.13 ; 
+        }
         angular = pid ; 
 
-      //calculate position error with hipotenuse 
-      dx = SP_X - x ;
-      dy = SP_Y - y ; 
-
-      error_pos_linear = sqrt( dx*dx + dy*dy);
-
+        
 
       // case to select the mode 
       switch (comand)
@@ -214,14 +224,6 @@ void loop()
                 led_color = VERDE;
                 linear = 0;
 
-                // if(border_front){
-                //   linear = linear*-1;
-                // }
-                // if(border_back){
-                //    linear = linear*-1;
-                // }
-
-                
                 
                 
                 break;    
@@ -246,7 +248,7 @@ void loop()
 
 
           if(enable){
-            speed_left =  speed_converter(cinematic_left(angular,linear));
+            speed_left =  speed_converter(-cinematic_left(angular,linear));
             speed_right = speed_converter(cinematic_right(angular,linear));
           }else{
             speed_left =  1500;
@@ -258,14 +260,14 @@ void loop()
           }
 
 
-    debug_serial();
+    // debug_serial();
     // debug_blu();
     odom(encoder_esquerda.getCount(), -1*encoder_direita.getCount(),imu_ypr[0]);
      
 
 
   
-    if(set_point == 0){
+    if(set_point < 1.57 && set_point > -1.57 ){
       // Serial.print("frente");
       LED.set_led_number(led_color,0);
       LED.set_led_number(VERMELHO,1);
@@ -294,13 +296,32 @@ void loop()
       LED.set_led_number(VERMELHO,3);
     }
 
+    if(bat_read < 12){
+      speed_left = 0;
+      speed_right = 0 ; 
+
+      if(bat_blink){
+        LED.set_led_number(VERMELHO,0);
+        LED.set_led_number(VERMELHO,1);
+        LED.set_led_number(VERMELHO,2);
+        LED.set_led_number(VERMELHO,3);
+        
+        delay(500);
+      }else{
+        LED.set_led_number(PRETO,0);
+        LED.set_led_number(PRETO,1);
+        LED.set_led_number(PRETO,2);
+        LED.set_led_number(PRETO,3);
+        delay(500);
+      }
+      bat_blink = !bat_blink;
+    }
+
     motor_esquerda.write(speed_left); 
     motor_direita.write(speed_right); 
 
 
-    ros_loop(sensores.dist[0],sensores.dist[2],sensores.dist[1],rft_front.read(),rft_back.read(),cr_read,encoder_esquerda.getCount(),encoder_direita.getCount(),th,x,y);
-    RCCHECK(rclc_executor_spin_some(&executor, RCL_MS_TO_NS(1)));
-
+    
 }
 
 
@@ -314,11 +335,11 @@ void debug_serial(){
   Serial.print("Bat ");
   Serial.print(bat_read);
 
-  Serial.print(" |FRONT: ");
-  Serial.print(border_front);
+  // Serial.print(" |FRONT: ");
+  // Serial.print(border_front);
 
-  Serial.print(" |BACK: ");
-  Serial.print(border_back);
+  // Serial.print(" |BACK: ");
+  // Serial.print(border_back);
 
   Serial.print(" |VL :");
   for (uint8_t i = 0; i < N_SENSOR; i++){
@@ -343,21 +364,20 @@ void debug_serial(){
 
       Serial.print( " |SP: ");
       Serial.print(set_point);
-      Serial.print(" |PID-e: ");
-      Serial.print(error_angular);
-      Serial.print(" P: ");
-      // Serial.print(kp);
+      // Serial.print(" |PID-e: ");
+      // Serial.print(error_angular);
+      Serial.print(" | PID -out: ");
+      Serial.print(balancer_controller.output_value);
 
       Serial.print(" |Speed:linear: ");
       Serial.print(linear);
       Serial.print(" angular: ");
       Serial.print(angular);
 
-      Serial.print(" |Speed ROS:linear: ");
-      Serial.print(linear_ros);
-      Serial.print(" angular: ");
-      Serial.print(angular_ros);
-
+      // Serial.print(" |Speed ROS:linear: ");
+      // Serial.print(linear_ros);
+      // Serial.print(" angular: ");
+      // Serial.print(angular_ros);
       Serial.print(" L: ");
       Serial.print(speed_left);
       Serial.print(" R: ");
@@ -367,8 +387,8 @@ void debug_serial(){
       // Serial.print(x);
       // Serial.print(" Y: ");
       // Serial.print(y);
-      Serial.print(" YAW: ");
-      Serial.print(th);
+      Serial.print(" pos: ");
+      Serial.print(map(VL53L5_get_position(),3000,4000,-0.5,0.5));
 
 
 
@@ -389,17 +409,17 @@ void debug_serial(){
 float recon_enemy_sides(VL53_sensors sensores){
 
 
-  float enemy_positon[3] = {PI/2,PI,-PI/2};
+  float enemy_positon[3] = {-PI/2,PI,PI/2};
   
   for (uint8_t i = 0; i < N_SENSOR; i++){
 
      
-      if(sensores.dist[i] < 50){
+      if(sensores.dist[i] < 150){
         return enemy_positon[i] ;
       } 
 
   }
-    return 0.0 ;
+    return map(VL53L5_get_position(),3000,4000,-0.5,0.5);
 
 
 
