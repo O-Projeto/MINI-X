@@ -16,11 +16,11 @@
         motor_left.init();
         motor_right.init();
         // Serial.print("init init");
+       delay(2000); 
     }
 
     void loop(){
 
-       delay(2000); 
 
        motor_left.write(70);
        motor_right.write(70);

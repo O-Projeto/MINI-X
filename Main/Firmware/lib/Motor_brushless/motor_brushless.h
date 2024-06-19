@@ -1,6 +1,7 @@
 #include <ESP32Servo.h>
 
-
+#ifndef ESC // include guard
+#define ESC
 
 /// lib developed by Dinossauro Bebado @ O PROJETO 2024
 // ----Control a motor brushless with a esc 
@@ -33,3 +34,4 @@ public:
     void write(int speed);
 };
 
+#endif

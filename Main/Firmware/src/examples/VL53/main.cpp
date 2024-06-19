@@ -92,6 +92,7 @@ void loop(){
  
  sensores.distanceRead();
 
+
   for (uint8_t i = 0; i < N_SENSOR; i++){
 
        Serial.print(" ");
