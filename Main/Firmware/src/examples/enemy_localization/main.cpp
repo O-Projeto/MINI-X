@@ -10,8 +10,11 @@
 // #include "mpu.h"
 #include <Arduino.h>
 #include "VL53_sensors.h"
-#include "VL53L5CX_sensor.h"
+// #include "VL53L5CX_sensor.h"
+#include "VL53LCX.h"
 
+
+VL53LCX front_sensor(15,4);
 VL53_sensors sensores;
 
 
@@ -19,17 +22,18 @@ VL53_sensors sensores;
 // 1 --> 180
 // 2 --> -90 
 
-
-
+float vl_pos ;
+float vl_dist;
 
 void setup(){
 
   Serial.begin(112500);
 
-
+  Serial.print(".");
   sensores.sensorsInit();
   delay(300);
-  VL53L5_init();
+  front_sensor.init();
+  // VL53L5_init();
   delay(1000);
 
 }
@@ -38,9 +42,13 @@ void setup(){
 void loop(){
  
  sensores.distanceRead();
- float vl_pos = VL53L5_get_position();
- float vl_dist = VL53L5_get_distance();
+ 
+ front_sensor.update();
 
+ float vl_pos = front_sensor.position;
+ float vl_dist = front_sensor.distance;
+
+ 
  float enemy_positon[3] = {-PI/2,PI,PI/2};
  float enemy_pos = 0 ; 
  int treshold_distance = 150 ;
