@@ -1,28 +1,31 @@
 #include "localization.h"
+#include <Arduino.h>
+#include "kinematic.h"
 
-localization robot_pos(); 
+// Declare the localization object globally or within the appropriate scope
+localization robot_pos;
 
-robot_position robot;  
-
-void setup(){
-
+void setup() {
+    // Initialize serial communication for debugging
     Serial.begin(115200);
+    robot_pos.init();
 
+    // Initialize any other necessary components here
 }
 
-void loop(){
-    robot = robot_pos.get_position();
+void loop() {
+    // Retrieve the robot's position using the localization object
+    robot_position robot = robot_pos.getPosition();
 
+    // Use the robot's position for whatever purpose you need
+    // For example, print the position for debugging
     Serial.print("X: ");
-    Serial.print(robot.x); 
+    Serial.print(robot.x);
     Serial.print(" Y: ");
     Serial.print(robot.y);
-    Serial.print(" Th: ");
-    Serial.print(robot.theta);
+    Serial.print(" Theta: ");
+    Serial.println(robot.theta);
 
-    Serial.println();
-
-    
-    
-
+    // Add a delay to avoid flooding the serial output
+    delay(1000);
 }
