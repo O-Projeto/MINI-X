@@ -38,22 +38,15 @@ void VL53_sensors::sensorsInit() {
       pinMode(x_shut_pins[i], INPUT);
       sensor[i].init(true);
       sensor[i].setAddress((uint8_t)0x21 + i); //endereço do sensor 1
-      sensor[i].setTimeout(40);
+      sensor[i].setTimeout(50);
     }
     
 }
 
 void VL53_sensors::distanceRead() {
-
-    for (uint8_t i = 0; i < number_sensor; i++){
-       dist[i] = sensor[i].readRangeSingleMillimeters();
-      //  Serial.print(" ");
-      //  Serial.print(String(i));
-      //  Serial.print(" ");
-      //  Serial.print(dist[i]);
+    for (uint8_t i = 0; i < number_sensor; i++) {
+        dist[i] = sensor[i].readRangeSingleMillimeters();
     }
-      //  Serial.println("\t\t");
-   
 }
 
 void VL53_sensors::printDistances() {

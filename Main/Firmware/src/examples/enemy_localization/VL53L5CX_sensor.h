@@ -41,9 +41,17 @@ static const uint8_t cxSDA = 15;
 static const uint8_t cxSCL = 4;
 
 float avg ,sum ; 
+int menor_dist;
+
+struct vl_data {
+    int pos;
+    int dist;
+};
 
 SparkFun_VL53L5CX myImager;
 VL53L5CX_ResultsData VL53L5_data; // Result data class structure, 1356 byes of RAM
+vl_data data; 
+
 
 int imageResolution = 0; //Used to pretty print output
 int imageWidth = 0; //Used to pretty print output
@@ -53,9 +61,9 @@ void VL53L5_init(){
     Wire2CX.setPins(cxSDA,cxSCL);
     Wire2CX.begin();
 
-    // Wire.setClock(1000000); //Sensor has max I2C freq of 1MHz
+    Wire2CX.setClock(1000000); //Sensor has max I2C freq of 1MHz
 
-    // myImager.setWireMaxPacketSize(64); //Increase default from 32 bytes to 128 - not supported on all platforms
+    // myImager.setWireMaxPacketSize(32); //Increase default from 32 bytes to 128 - not supported on all platforms
 
     Serial.println("Initializing sensor board. This can take up to 10s. Please wait.");
 
@@ -76,7 +84,7 @@ void VL53L5_init(){
     Serial.print(timeTaken, 3);
     Serial.println("s");
 
-    myImager.setResolution(8*8); //Enable all 16 pads
+    myImager.setResolution(4*4); //Enable all 16 pads
     myImager.setSharpenerPercent(50);
     myImager.setRangingFrequency(15);
 
@@ -90,10 +98,11 @@ void VL53L5_init(){
 }
 
 
-float VL53L5_get_position(){
+vl_data VL53L5_get_info(){
 
   avg = 0; 
   sum = 0; 
+  menor_dist = 10000;
 
     if (myImager.isDataReady() == true)
   {
@@ -105,15 +114,21 @@ float VL53L5_get_position(){
       // {
         for (int x = imageWidth - 1 ; x >= 0 ; x--)
         {
+          if(VL53L5_data.distance_mm[x] < menor_dist){
+            menor_dist = VL53L5_data.distance_mm[x];
+          }
           // Serial.print("\t");
           // Serial.print(VL53L5_data.distance_mm[x]);
 
           avg += VL53L5_data.distance_mm[x]*x*1000;
           sum += VL53L5_data.distance_mm[x];
         }
+
+        data.pos = avg/sum;
+        data.dist = menor_dist;
         // Serial.print(avg/sum);
         // Serial.println();
-        return avg/sum;
+        return data;
       // }
       // Serial.println();
     }
@@ -143,11 +158,9 @@ float VL53L5_get_distance(){
           }
         
         }
-        // Serial.print(avg/sum);
-        // Serial.println();
+        
         return closer_distance;
-      // }
-      // Serial.println();
+     
     }
   }
 
