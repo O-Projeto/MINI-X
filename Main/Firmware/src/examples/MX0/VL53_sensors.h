@@ -15,17 +15,17 @@ public:
 
     VL53L0X sensor[3];
     
-    void sensorsInit();
+    void sensorsInit(TwoWire &wire);
     void distanceRead();
     void printDistances();
 };
 
 
 
-void VL53_sensors::sensorsInit() {
+void VL53_sensors::sensorsInit(TwoWire &wire) {
 
     //Iniciando o endereçamento dos sensores
-    Wire.begin();
+    // Wire.begin();
 
     for (uint8_t i = 0; i < number_sensor; i++){
       pinMode(x_shut_pins[i], OUTPUT);
@@ -46,6 +46,10 @@ void VL53_sensors::sensorsInit() {
 void VL53_sensors::distanceRead() {
     for (uint8_t i = 0; i < number_sensor; i++) {
         dist[i] = sensor[i].readRangeSingleMillimeters();
+        Serial.print("Serial.printalor do VL ");
+        Serial.print(i);
+        Serial.print(": ");
+        Serial.println(dist[i]);
     }
 }
 

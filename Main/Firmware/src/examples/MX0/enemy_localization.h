@@ -35,22 +35,22 @@ class Enemy_localization{
 
   };
   void update_dist();
-  void init_sensors();
+  void init_sensors(TwoWire &wire);
   enemy_localization_cord get_info();
   void debug();
 };
 
 
 
-void Enemy_localization::init_sensors(){
+void Enemy_localization::init_sensors(TwoWire &wire){
   // Serial.println("Começo do init dos vls");
   VL53L5_init();
-  sens_dist_lineares.sensorsInit();
+  sens_dist_lineares.sensorsInit(wire);
   // Serial.println("Fim init dos vls");
 }
 
 void Enemy_localization::update_dist(){
-  //  sens_dist_lineares.distanceRead();
+   sens_dist_lineares.distanceRead();
    vl_data_storage = VL53L5_get_info();
 }
 

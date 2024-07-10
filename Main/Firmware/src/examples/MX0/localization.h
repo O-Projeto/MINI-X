@@ -28,7 +28,7 @@ private:
 public:
     localization(/* args */);
     robot_position getPosition(); 
-    void init();
+    void init(TwoWire &wire);
     void debug();
     
     ~localization();
@@ -43,9 +43,9 @@ localization::localization(/* args */)
 
 }
 
-void localization::init(){
+void localization::init(TwoWire &wire){
 
-    mpu_connected = imu_setup();
+    mpu_connected = imu_setup(wire);
 }
 
 localization::~localization()

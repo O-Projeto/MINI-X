@@ -134,24 +134,6 @@ vl_data VL53L5_get_info(){
     }
   }
 
-  if (myImager.isDataReady() == true)
-  {
-    if (myImager.getRangingData(&VL53L5_data)) //Read distance data into array
-    {
-      //The ST library returns the data transposed from zone mapping shown in datasheet
-      //Pretty-print data with increasing y, decreasing x to reflect reality
-      for (int y = 0 ; y <= imageWidth * (imageWidth - 1) ; y += imageWidth)
-      {
-        for (int x = imageWidth - 1 ; x >= 0 ; x--)
-        {
-          Serial.print("\t");
-          Serial.print(VL53L5_data.distance_mm[x + y]);
-        }
-        Serial.println();
-      }
-      Serial.println();
-    }
-  }
 
 }
 

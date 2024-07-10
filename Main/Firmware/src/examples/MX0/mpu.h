@@ -43,13 +43,13 @@ float linearCovariance[9];
 int16_t ax, ay, az;
 int16_t gx, gy, gz;
 
-bool imu_setup()
+bool imu_setup(TwoWire &wire)
 {   
 
     // join I2C bus (I2Cdev library doesn't do this automatically)
     #if I2CDEV_IMPLEMENTATION == I2CDEV_ARDUINO_WIRE
-        Wire.begin();
-        Wire.setClock(400000); // 400kHz I2C clock. Comment this line if having compilation difficulties
+        // Wire.begin();
+        // Wire.setClock(400000); // 400kHz I2C clock. Comment this line if having compilation difficulties
     #elif I2CDEV_IMPLEMENTATION == I2CDEV_BUILTIN_FASTWIRE
         Fastwire::setup(400, true);
     #endif
