@@ -24,6 +24,8 @@ double vx = 0.0;
 double vy = 0.0;
 double vth = 0.0;
 
+
+// return X,Y and theta 
 struct robot_position {
      float x ;
      float y ; 

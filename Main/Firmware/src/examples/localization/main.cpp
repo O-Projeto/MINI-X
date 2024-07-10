@@ -27,5 +27,5 @@ void loop() {
     Serial.println(robot.theta);
 
     // Add a delay to avoid flooding the serial output
-    delay(1000);
+    // delay(1000);
 }

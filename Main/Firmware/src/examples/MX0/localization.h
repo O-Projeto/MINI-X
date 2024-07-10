@@ -29,6 +29,7 @@ public:
     localization(/* args */);
     robot_position getPosition(); 
     void init();
+    void debug();
     
     ~localization();
 };
@@ -63,4 +64,12 @@ robot_position localization::getPosition(){
 }
 
 
- 
+void localization:: debug(){
+    Serial.print(" x: ");
+    Serial.print(robot.x);
+    Serial.print(" y: ");
+    Serial.print(robot.y);
+    Serial.print(" theta: ");
+    Serial.print(robot.theta);
+    Serial.print(" | ");
+}
