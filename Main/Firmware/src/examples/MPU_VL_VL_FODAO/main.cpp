@@ -23,8 +23,8 @@ int X_SHUT[N_SENSOR] = { SDIST_1, SDIST_2, SDIST_3} ;
 
 VL53_sensors sensores;
 
-static const uint8_t cxSDA = 4;
-static const uint8_t cxSCL = 15;
+static const uint8_t cxSDA = 15;
+static const uint8_t cxSCL = 4;
 
 SparkFun_VL53L5CX myImager;
 VL53L5CX_ResultsData measurementData; // Result data class structure, 1356 byes of RAM
@@ -34,7 +34,7 @@ int imageWidth = 0; //Used to pretty print output
 
 void setup()
 {
-  Serial.begin(115200);
+  Serial.begin(112500);
   delay(1000);
   Serial.println("SparkFun VL53L5CX Imager Example");
   Wire2CX.setPins(cxSDA,cxSCL);
