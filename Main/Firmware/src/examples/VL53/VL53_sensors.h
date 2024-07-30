@@ -12,12 +12,17 @@ public:
     int number_sensor = 3; // change this value 
     int x_shut_pins[3] = { SDIST_1, SDIST_2, SDIST_3} ; 
     int dist[3];
+    int test = 0
+
+    ;
+    int distTest;
 
     VL53L0X sensor[3];
     
     void sensorsInit();
     void distanceRead();
     void printDistances();
+    void testRead();
 };
 
 
@@ -44,7 +49,7 @@ void VL53_sensors::sensorsInit() {
 }
 
 void VL53_sensors::distanceRead() {
-
+  /*
     for (uint8_t i = 0; i < number_sensor; i++){
        dist[i] = sensor[i].readRangeSingleMillimeters();
       //  Serial.print(" ");
@@ -53,7 +58,10 @@ void VL53_sensors::distanceRead() {
       //  Serial.print(dist[i]);
     }
       //  Serial.println("\t\t");
-   
+  */
+  for (uint8_t i = 0; i < 2; i++){
+       dist[i] = sensor[i].readRangeSingleMillimeters();
+  }
 }
 
 void VL53_sensors::printDistances() {
@@ -68,5 +76,16 @@ void VL53_sensors::printDistances() {
 
       Serial.println("\t\t");
   }
+
+}
+
+
+void VL53_sensors::testRead() {
+    
+        distTest = sensor[test].readRangeSingleMillimeters();
+        Serial.print("Serial.printalor do VL ");
+        Serial.print(test);
+        Serial.print(": ");
+        Serial.println(distTest);
 
 }

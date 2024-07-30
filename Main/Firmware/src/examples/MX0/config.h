@@ -5,9 +5,9 @@
 #define pinEsc2 32
 #define pinEsc1 33
 
-#define MOTOR_LEFT_PIN 32
+// #define MOTOR_LEFT_PIN 32
 
-#define MOTOR_RIGH_PIN 33
+// #define MOTOR_RIGH_PIN 33
 
 #define ENCODER_LEFT_A_PIN 19
 #define ENCODER_LEFT_B_PIN 18
@@ -49,13 +49,13 @@
 
 //MECHANICAL 
 
-#define L  0.09 
-#define R 0.015
+// #define L  0.09 
+// #define R 0.015
 
 
 #define SATURATION 80 //[-100,100]
-#define MIN_VALUE  1000 
-#define MAX_VALUE  2000 
+// #define MIN_VALUE  1000 
+// #define MAX_VALUE  2000 
 #define STOP_VALUE  1500
 
 

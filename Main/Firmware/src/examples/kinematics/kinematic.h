@@ -59,7 +59,7 @@ void kinematic::move(float linear,float angular){
     left_speed = -100;
 
   motor_left.write(left_speed);
-  motor_right.write(right_speed);
+  motor_right.write(-1*right_speed);
 
 
 }

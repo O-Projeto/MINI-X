@@ -4,6 +4,7 @@
 #define R 0.015
 
 kinematic robo(32,33,L,R);
+float K_circulo = 2;
 
 void setup(){
     Serial.begin(115200);
@@ -14,7 +15,7 @@ void setup(){
 
 void loop(){
 
-    robo.move(0.5,0);
+    robo.move(1,1*K_circulo);
     // robo.motor_left.write(1600);
     // robo.motor_right.write(1600);
     robo.debug();

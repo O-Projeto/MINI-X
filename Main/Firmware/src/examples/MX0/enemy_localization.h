@@ -28,8 +28,11 @@ class Enemy_localization{
   int dist_fodao;
   
   public:
-  float sens_pos_robot[4] =  {-PI/2,PI,PI/2,0}; //[rad]
-  float sens_dist_robot[4];
+  // float sens_pos_robot[4] =  {-PI/2,PI,PI/2,0}; //[rad]
+  // float sens_pos_robot[3] =  {-PI/2,PI,0}; //[rad]
+  float sens_pos_robot[2] =  {0, PI}; //[rad]
+
+  float sens_dist_robot[2];
 
   Enemy_localization(){
 
@@ -59,14 +62,14 @@ enemy_localization_cord Enemy_localization::get_info(){
   this->update_dist();
   // sens_pos_robot[3] = vl_data_storage.pos;
 
-  for (int i = 0; i < 3; i++){
+  for (int i = 0; i < 1; i++){
       sens_dist_robot[i] = sens_dist_lineares.dist[i];
   }
   
-  sens_dist_robot[3] = vl_data_storage.dist; 
+  sens_dist_robot[1] = vl_data_storage.dist; 
   
   enemy_cord_info.dist = 10000;
-  for (int i = 0; i < 4; i++){
+  for (int i = 0; i < 2; i++){
     if ( enemy_cord_info.dist > sens_dist_robot[i]){
       enemy_cord_info.dist = sens_dist_robot[i];
       enemy_cord_info.angle = sens_pos_robot[i];
@@ -80,10 +83,10 @@ void Enemy_localization::debug(){
   Serial.print(sens_dist_robot[0]);
   Serial.print(" 1: ");
   Serial.print(sens_dist_robot[1]);
-  Serial.print(" 2: ");
-  Serial.print(sens_dist_robot[2]);
-  Serial.print(" 3: ");
-  Serial.print(sens_dist_robot[3]);
+  // Serial.print(" 2: ");
+  // Serial.print(sens_dist_robot[2]);
+  // Serial.print(" 3: ");
+  // Serial.print(sens_dist_robot[3]);
 
   Serial.print(" | DIST: ");
   Serial.print( enemy_cord_info.dist);

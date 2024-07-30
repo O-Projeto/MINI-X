@@ -10,11 +10,11 @@
 #define SDA_SDIST 21
 
 // XSHUT, uma porta por sensor 
-// #define SDIST_1 25
-// #define SDIST_2 23
-// #define SDIST_3 13
+#define SDIST_1 25
+#define SDIST_2 23
+#define SDIST_3 13
 
-#define N_SENSOR 3
+#define N_SENSOR 2
 
 
 //Cria os objetos para cada sensor
@@ -23,7 +23,7 @@
 
 // int dist[N_SENSOR] ;
 
-int X_SHUT[N_SENSOR] = { SDIST_1, SDIST_2, SDIST_3} ; 
+int X_SHUT[N_SENSOR] = { SDIST_1, SDIST_2} ; 
 
 VL53_sensors sensores;
 
@@ -103,5 +103,9 @@ void loop(){
   }
       Serial.println("\t\t");
   
+ /*
+ sensores.testRead();
+ Serial.print(sensores.distTest);
+ */
 }   
 
