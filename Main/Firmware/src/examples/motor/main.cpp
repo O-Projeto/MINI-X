@@ -5,25 +5,34 @@
     #include "motor_brushless.h"
 
     // 33 left 
-    //32 tight
+    // 32 tight
 
     motor_brushless motor_left(33);
     motor_brushless motor_right(32);
 
     void setup(){
-        // Serial.begin(9600);
+         Serial.begin(9600);
         //  delay(10000);
-        motor_left.init();
         motor_right.init();
-        // Serial.print("init init");
-       delay(2000); 
+        motor_left.init();
+        delay(2000); 
+        
     }
 
     void loop(){
 
-
-       motor_left.write(70);
-       motor_right.write(70);
-    }
+      for(int i = 0; i < 70; i++){      
+          motor_left.write(i);
+          motor_right.write(i);
+          delay(300);
+          Serial.println(i);
+      }
+      for(int i = 70; 0 < i; i--){      
+          motor_left.write(i);
+          motor_right.write(i);
+          delay(300);
+          Serial.println(i);
+      }
+   }
 
 

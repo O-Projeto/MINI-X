@@ -23,21 +23,23 @@ robot_speed robo_speed;
 
 void setup(){   
     Serial.begin(112500);
+
+    robo_speed.angular = 0 ;
+    robo_speed.linear = 0 ;
     robo_moviment.init();
     
     razoes.init();
     led.init();
 
     controle.init();
-
 }
 
 void loop(){
     
     juiz_comand = controle.read();
-    Serial.print("JC ");
-    Serial.print(juiz_comand);
-    Serial.print(" ");
+    // Serial.print("JC ");
+    // Serial.print(juiz_comand);
+    // Serial.print(" ");
 
     switch (juiz_comand)
     {
@@ -46,12 +48,11 @@ void loop(){
             led.blue();
         }
             /* code */
-
         break;
 
     case (1):
         led.green();
-        robo_speed = razoes.process();
+         robo_speed = razoes.process();
         /* code */
         ordem_led = 1;
         break;
@@ -62,19 +63,23 @@ void loop(){
         robo_speed.linear = 0 ;
         ordem_led = 0;
         break;
+
      default:
         led.black();
     }
     
  
-    Serial.print(" A: ");
-    Serial.print(robo_speed.angular);
-    Serial.print(" L: ");
-    Serial.print(robo_speed.linear);
-    Serial.println("");
-    razoes.debug();
-    robo_moviment.move(robo_speed.linear,robo_speed.angular);
-    
-   
-}
+   Serial.print(" A: ");
+   Serial.print(robo_speed.angular);
 
+   Serial.print(" L: ");
+   Serial.print(robo_speed.linear);
+    
+    // razoes.debug();
+    // robo_moviment.debug();
+
+    // razoes.debug();
+    Serial.println("");
+    
+    robo_moviment.move(robo_speed.linear,robo_speed.angular);
+}

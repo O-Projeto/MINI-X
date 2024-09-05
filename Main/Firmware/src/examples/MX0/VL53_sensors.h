@@ -33,8 +33,6 @@ void VL53_sensors::sensorsInit(TwoWire &wire) {
     for (uint8_t i = 0; i < number_sensor; i++){
       pinMode(x_shut_pins[i], OUTPUT);
       digitalWrite(x_shut_pins[i], LOW);
-
-
     }
 
     for (uint8_t i = 0; i < number_sensor; i++){

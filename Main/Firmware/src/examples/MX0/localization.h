@@ -54,7 +54,7 @@ localization::~localization()
 
 
 robot_position localization::getPosition(){
-    imu_ypr = imu_get_ypr();  
+    imu_ypr = imu_get_ypr();  // Obter a orientação atual do robô em termos de ângulos em relação aos eixos. O ângulo Yaw, que é o primeiro elemento do array, é usado para calcular a direção do robô. 
     pulseRight =  -1*encoder_direita.getCount();
     pulseLeft = encoder_esquerda.getCount() ;
 

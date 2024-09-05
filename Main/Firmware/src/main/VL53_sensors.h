@@ -1,4 +1,4 @@
-#include <VL53L0X.h> 
+#include "VL53L0X.h"
 
 #define SDIST_1 25 //change the pins 
 #define SDIST_2 23
@@ -19,8 +19,6 @@ public:
     void distanceRead();
     void printDistances();
 };
-
-
 
 void VL53_sensors::sensorsInit() {
 
