@@ -15,7 +15,7 @@
 // float KI = -0.001;
 // float KD = -0.0000;
 
-float KP = 0.0005; //constante correção de erros PID
+float KP = 0.5; //constante correção de erros PID
 float KI = 0.01;
 float KD = 0;
 
@@ -58,8 +58,12 @@ void MX0::init(){
 }
 
  robot_speed MX0::process(){
+    enemy.debug();
     robot_pos = robot_localization.getPosition(); // Obtém a posição atual do robô
-    // enemy_info = enemy.get_info(); // Obtém as informações sobre o inimigo
+    enemy_info = enemy.get_info(); // Obtém as informações sobre o inimigo
+    
+    // Serial.print("vl: ");
+    // Serial.println(enemy_info.angle);
 
     // Serial.print("1 inicial: ");
     // Serial.print(emocoes.angular);
@@ -104,13 +108,14 @@ void MX0::init(){
         emocoes.linear = 0.05; // Mantém a velocidade padrão se o inimigo não estiver muito próximo
     }
 
-    return emocoes;
+    return emocoes;    
 }
+
 void MX0::debug(){
 
    // balancer_controller.debug();
 
-
+    /*
    robot_localization.debug();
    enemy.debug();
    Serial.print(" veloL: ");
@@ -118,7 +123,7 @@ void MX0::debug(){
    Serial.print(" | veloA: ");
    Serial.print(emocoes.angular);
    Serial.println();
-
+   */
 }
 
 

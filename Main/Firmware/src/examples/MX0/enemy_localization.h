@@ -20,6 +20,7 @@ class Enemy_localization{
   float max_rad;
   float mim_rad;
   int numerovls = 2;
+  int vlc = 0;  // variavel para silumar os vls para calibrar o PID
   
   // VL_Fodao vlf;
   enemy_localization_cord enemy_cord_info; 
@@ -77,6 +78,42 @@ enemy_localization_cord Enemy_localization::get_info(){
   }
   return enemy_cord_info ;  
   */
+  int time = 2000; //Valor para ser o dellay
+  Serial.print("vlc = ");
+  Serial.print(vlc);
+  Serial.print(" angle = ");
+  if (vlc >= 0 && vlc < time){
+    enemy_cord_info.angle = -90;
+    enemy_cord_info.dist = 300;
+    vlc++;
+    Serial.print("-90 = ");
+  }
+  else if (vlc >= time && vlc < time*2){
+    enemy_cord_info.angle = 90;
+    enemy_cord_info.dist = 300;
+    vlc++;
+    Serial.print("90 = ");
+  }
+  else if (vlc >= time*2 && vlc < time*3){
+    enemy_cord_info.angle = 180;
+    enemy_cord_info.dist = 300;
+    vlc++;
+    Serial.print("180 = ");
+  }
+  else if (vlc >= time*3 && vlc < time*4){
+    enemy_cord_info.angle = 0;
+    enemy_cord_info.dist = 300;
+    vlc++;
+    Serial.print("0 = ");
+  }
+  else if (vlc == time*4){
+    vlc = 0;
+  }
+  Serial.println(vlc);
+  
+  // enemy_cord_info.dist = 300;
+  // enemy_cord_info.angle = 180;
+  return enemy_cord_info ;  
 }
 
 void Enemy_localization::debug(){

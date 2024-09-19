@@ -4,6 +4,8 @@
 #include "LED.h"
 #include "controle_juiz.h"
 
+#include "VL53_sensors.h"
+
 #define L  0.09 
 #define R 0.015
 
@@ -21,6 +23,8 @@ MX0 razoes;
 
 robot_speed robo_speed;
 
+VL53_sensors vltest;
+
 void setup(){   
     Serial.begin(112500);
 
@@ -32,6 +36,9 @@ void setup(){
     led.init();
 
     controle.init();
+    Serial.println();
+    Serial.println("Eu estou funcionando, to esperando você apertar o botão do controle XD");
+    
 }
 
 void loop(){
@@ -68,18 +75,18 @@ void loop(){
         led.black();
     }
     
- 
-   Serial.print(" A: ");
-   Serial.print(robo_speed.angular);
+    /*
+    Serial.print(" A: ");
+    Serial.print(robo_speed.angular);
 
-   Serial.print(" L: ");
-   Serial.print(robo_speed.linear);
-    
+    Serial.print(" L: ");
+    Serial.print(robo_speed.linear);
+    */
     // razoes.debug();
     // robo_moviment.debug();
 
     // razoes.debug();
-    Serial.println("");
+    // Serial.println("");
     
     robo_moviment.move(robo_speed.linear,robo_speed.angular);
 }

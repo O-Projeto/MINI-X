@@ -1,23 +1,25 @@
 #include <VL53L0X.h> 
+#include <vector>
 
-#define SDIST_1 25 //change the pins 
-#define SDIST_2 23
-#define SDIST_3 13
+// #define SDIST_1 5 //change the pins 
+// #define SDIST_2 23
+// #define SDIST_3 13
 
 class VL53_sensors
 {
 private:
-    /* data */
+    int number_sensor;
+    int* x_shut_pins; // Alterado para ponteiro para os pinos
 public:
-    int number_sensor = 3; // change this value 
-    int x_shut_pins[3] = { SDIST_1, SDIST_2, SDIST_3} ; 
-    int dist[3];
-    int test = 0
-
-    ;
+    std::vector<int> dist;
     int distTest;
+    int test = 0;
 
-    VL53L0X sensor[3];
+    std::vector<VL53L0X> sensor;
+
+    
+    // Construtor que aceita número de sensores e os pinos
+    VL53_sensors(int num, int* pins) : number_sensor(num), x_shut_pins(pins), dist(num), sensor(num) {}
     
     void sensorsInit();
     void distanceRead();
@@ -59,7 +61,7 @@ void VL53_sensors::distanceRead() {
     }
       //  Serial.println("\t\t");
   */
-  for (uint8_t i = 0; i < 2; i++){
+  for (uint8_t i = 0; i < number_sensor; i++){
        dist[i] = sensor[i].readRangeSingleMillimeters();
   }
 }

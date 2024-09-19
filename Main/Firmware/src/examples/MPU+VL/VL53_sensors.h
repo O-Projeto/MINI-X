@@ -18,6 +18,7 @@ public:
     void sensorsInit();
     void distanceRead();
     void printDistances();
+    void testReadDist();
 };
 
 
@@ -69,4 +70,10 @@ void VL53_sensors::printDistances() {
       Serial.println("\t\t");
   }
 
+}
+
+void VL53_sensors::testReadDist(){
+  int testVL = 0;
+  Serial.println(sensor[testVL].readRangeSingleMillimeters());
+  Serial.print("VL : ");
 }
