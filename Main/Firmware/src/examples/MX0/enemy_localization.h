@@ -14,7 +14,7 @@ struct enemy_localization_cord {
 // return a struct with distance, and dregre is radians relative to the front of the robot 
 class Enemy_localization{
   private:
-  VL53_sensors sens_dist_lineares;
+  // VL53_sensors sens_dist_lineares;
   float max_pos;
   float mim_pos;
   float max_rad;
@@ -48,12 +48,12 @@ class Enemy_localization{
 void Enemy_localization::init_sensors(TwoWire &wire){
   // Serial.println("Começo do init dos vls");
   VL53L5_init();
-  sens_dist_lineares.sensorsInit(wire);
+  // sens_dist_lineares.sensorsInit(wire);
   // Serial.println("Fim init dos vls");
 }
 
 void Enemy_localization::update_dist(){
-   sens_dist_lineares.distanceRead();
+  //  sens_dist_lineares.distanceRead();
    vl_data_storage = VL53L5_get_info();
 }
 

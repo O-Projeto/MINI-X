@@ -23,7 +23,7 @@ MX0 razoes;
 
 robot_speed robo_speed;
 
-VL53_sensors vltest;
+// VL53_sensors vltest;
 
 void setup(){   
     Serial.begin(112500);
@@ -59,7 +59,7 @@ void loop(){
 
     case (1):
         led.green();
-         robo_speed = razoes.process();
+        robo_speed = razoes.process();
         /* code */
         ordem_led = 1;
         break;

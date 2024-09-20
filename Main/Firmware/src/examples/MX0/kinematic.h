@@ -44,7 +44,7 @@ void kinematic::move(float linear,float angular){
 
   right_speed =  (linear + angular*L)/R ; 
 
-  left_speed =  (linear - angular*L)/R ; 
+  left_speed =  (linear + angular*L)/R ; 
 
   if(right_speed > 100)
     right_speed = 100;

@@ -10,14 +10,25 @@
 #include "controller.h"
 #include "controller.h" //PID
 
-// =-=-=-=-=-=-=-= PID do GUI =-=-=-=-=-=-=-=
-// float KP = -1.0 ; //constante correção de erros PID
-// float KI = -0.001;
-// float KD = -0.0000;
+// =-=-=-=-=-=-=-= PID para 45° =-=-=-=-=-=-=-=
+// float KP = 3; //constante correção de erros PID
+// float KI = 0.01;
+// float KD = 0.0;
 
-float KP = 0.5; //constante correção de erros PID
+// =-=-=-=-=-=-=-= PID para 90° =-=-=-=-=-=-=-=
+// float KP = 1.6; //constante correção de erros PID
+// float KI = 0.01;
+// float KD = 0.0;
+
+// =-=-=-=-=-=-=-= PID para 135° =-=-=-=-=-=-=-=
+// float KP = 1.18; //constante correção de erros PID
+// float KI = 0.01;
+// float KD = 0.0;
+
+// =-=-=-=-=-=-=-= PID para 180° =-=-=-=-=-=-=-=
+float KP = 1.088; //constante correção de erros PID
 float KI = 0.01;
-float KD = 0;
+float KD = 0.0;
 
 struct robot_speed {
      float linear ;
@@ -60,17 +71,15 @@ void MX0::init(){
  robot_speed MX0::process(){
     enemy.debug();
     robot_pos = robot_localization.getPosition(); // Obtém a posição atual do robô
-    enemy_info = enemy.get_info(); // Obtém as informações sobre o inimigo
     
-    // Serial.print("vl: ");
     // Serial.println(enemy_info.angle);
 
     // Serial.print("1 inicial: ");
     // Serial.print(emocoes.angular);
     // Serial.print(" | ");
 
-    // Calcula a velocidade angular com base na orientação do robô e a do inimigo
-    // emocoes.angular = balancer_controller.output(robot_pos.theta + enemy_info.angle, robot_pos.theta);
+    // // Calcula a velocidade angular com base na orientação do robô e a do inimigo
+     emocoes.angular = balancer_controller.output(0, robot_pos.theta);
 
     /*
     Serial.print(" calculo algular: ");
@@ -101,12 +110,15 @@ void MX0::init(){
     }
 
     else if (enemy_info.angle == -90 && enemy_info.dist < 500){
-         emocoes.linear = -0.1;
+        emocoes.linear = -0.1;
     }
 
     else {
         emocoes.linear = 0.05; // Mantém a velocidade padrão se o inimigo não estiver muito próximo
     }
+
+        emocoes.linear = 0; // Valor padrão pequeno
+
 
     return emocoes;    
 }

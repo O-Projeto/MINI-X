@@ -3,11 +3,11 @@
 #define SDIST_1 25 //change the pins 
 #define SDIST_2 23
 #define SDIST_3 13
-
+/*
 class VL53_sensors
 {
 private:
-    /* data */
+    // data
 public:
     int number_sensor = 2; // change this value 
     int x_shut_pins[3] = { SDIST_1, SDIST_2, SDIST_3} ; 
@@ -74,3 +74,4 @@ void VL53_sensors::testRead() {
         Serial.println(distTest);
 
 }
+*/
