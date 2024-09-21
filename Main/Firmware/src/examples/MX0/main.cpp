@@ -4,7 +4,7 @@
 #include "LED.h"
 #include "controle_juiz.h"
 
-#include "VL53_sensors.h"
+// #include "VL53_sensors.h"
 
 #define L  0.09 
 #define R 0.015
@@ -44,6 +44,7 @@ void setup(){
 void loop(){
     
     juiz_comand = controle.read();
+    juiz_comand = 1;
     // Serial.print("JC ");
     // Serial.print(juiz_comand);
     // Serial.print(" ");
@@ -59,7 +60,12 @@ void loop(){
 
     case (1):
         led.green();
+        // delay(500);;
+        
+
         robo_speed = razoes.process();
+        
+
         /* code */
         ordem_led = 1;
         break;
@@ -87,6 +93,7 @@ void loop(){
 
     // razoes.debug();
     // Serial.println("");
-    
+    razoes.debug();
+    Serial.println("");
     robo_moviment.move(robo_speed.linear,robo_speed.angular);
 }

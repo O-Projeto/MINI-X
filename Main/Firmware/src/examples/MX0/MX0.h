@@ -44,7 +44,7 @@ private:
     // current robot position
     robot_position robot_pos; // Estrutura para armazenar a posição do robô
     robot_speed emocoes; // Estrutura para armazenar a velocidade linear e angular
-    enemy_localization_cord enemy_info; // Estrutura para armazenar as informações sobre o inimigo
+    // enemy_localization_cord enemy_info; // Estrutura para armazenar as informações sobre o inimigo
     Enemy_localization enemy; // Objeto para obter a localização do inimigo
     Controller balancer_controller; // Controlador PID para ajustar a orientação
 
@@ -69,10 +69,10 @@ void MX0::init(){
 }
 
  robot_speed MX0::process(){
-    enemy.debug();
+    
     robot_pos = robot_localization.getPosition(); // Obtém a posição atual do robô
     
-    // Serial.println(enemy_info.angle);
+    // enemy_info = enemy.get_info();
 
     // Serial.print("1 inicial: ");
     // Serial.print(emocoes.angular);
@@ -81,21 +81,22 @@ void MX0::init(){
     // // Calcula a velocidade angular com base na orientação do robô e a do inimigo
      emocoes.angular = balancer_controller.output(0, robot_pos.theta);
 
-    /*
+    
+
+    
     Serial.print(" calculo algular: ");
     Serial.print(emocoes.angular);
     Serial.print(" = PID*(");
     Serial.print(robot_pos.theta);
     Serial.print(" + ");
-    Serial.print(enemy_info.angle);
+    // Serial.print(enemy_info.angle);
     Serial.print(" , ");
-    Serial.print(robot_pos.theta);
-    Serial.println(")");
-    */
+   
+    
 
     // Define a velocidade linear com base na distância do inimigo
     emocoes.linear = 3 / (10); // Valor padrão pequeno
-
+/*
     // Ajusta a velocidade linear com base na posição do inimigo
     if (enemy_info.angle == 0 && enemy_info.dist < 500) {
         emocoes.linear = 0.2; // Aumenta a velocidade se o inimigo está diretamente à frente e perto  
@@ -118,12 +119,14 @@ void MX0::init(){
     }
 
         emocoes.linear = 0; // Valor padrão pequeno
-
+*/
 
     return emocoes;    
 }
 
 void MX0::debug(){
+
+    enemy.debug();
 
    // balancer_controller.debug();
 

@@ -16,38 +16,43 @@ Controller::Controller(float kp,float ki, float kd)
 float Controller::output(float setpoint, float current_value){
 
     time = millis();
-    setpoint_ = setpoint;   // 0,01 + 180 = 180,01
-    current_value_ = current_value; // 0,01
+    setpoint_ = setpoint; //*3.1415/180;
+    current_value_ = current_value;
 
-    error =  setpoint_ - current_value_ ;   // 180,01 - 0,01
+    error =  setpoint_ - current_value_ ;
+    Serial.print("ERRO = ");
+    Serial.print(error);
+    // Serial.print(" | Angulo: ");
+
+    if (error < 0) error *= -1; // Faz modulo do error, para error ser sempre possitivo
 
     if(error >= 0 && error <= 45*3.1415/180){
         KP = 3; //constante correção de erros PID
         KI = 0.01;
         KD = 0.0;
-        Serial.println("45");
+        // Serial.println("45");
     }
     if(error > 45*3.1415/180 && error <= 90*3.1415/180){
         KP = 1.6; //constante correção de erros PID
         KI = 0.01;
         KD = 0.0;
-        Serial.println("90");
+        // Serial.println("90");
     }
     if(error > 90*3.1415/180 && error <= 135*3.1415/180){
         KP = 1.18; //constante correção de erros PID
         KI = 0.01;
         KD = 0.0;
-        Serial.println("135");
+        // Serial.println("135");
     }
     if(error > 135*3.1415/180 && error <= 180*3.1415/180){
         KP = 1.088; //constante correção de erros PID
         KI = 0.01;
         KD = 0.0;
-        Serial.println("180");
+        // Serial.println("180");
     }
     else {
 
-        Serial.println('deu ruim');
+        // Serial.println("deu ruim");
     }
 
     delta_time = (double)(time - last_time)/10000;  //
@@ -66,8 +71,7 @@ float Controller::output(float setpoint, float current_value){
 }
 
 float Controller::proportional(){
-    Serial.print("error = ");
-    Serial.println(error);
+
     return error*KP; 
 
 }

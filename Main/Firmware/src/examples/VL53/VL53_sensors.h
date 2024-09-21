@@ -13,7 +13,7 @@ private:
 public:
     std::vector<int> dist;
     int distTest;
-    int test = 0;
+    int test = 2;
 
     std::vector<VL53L0X> sensor;
 
