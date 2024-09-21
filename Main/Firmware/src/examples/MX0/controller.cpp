@@ -100,7 +100,7 @@ void Controller::debug(){
     
     // Serial.print(" |delta_time: ");
     // Serial.print(delta_time);
-/*
+
     Serial.print("|input_values: ");
     Serial.print(setpoint_);
     Serial.print("|current_values: ");
@@ -117,7 +117,7 @@ void Controller::debug(){
 
     Serial.print("|output_value: ");
     Serial.println(output_value);
-    */
+    
     // Serial.println("");
 
 }

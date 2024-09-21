@@ -82,8 +82,6 @@ enemy_localization_cord Enemy_localization::get_info(){
       sens_dist_robot[i] = sens_dist_lineares.dist[i];
   }
   
-  sens_dist_robot[numerovls + 1] = vl_data_storage.dist; 
-  
   enemy_cord_info.dist = 10000;
   for (int i = 0; i < 3; i++){
     if ( enemy_cord_info.dist > sens_dist_robot[i]){

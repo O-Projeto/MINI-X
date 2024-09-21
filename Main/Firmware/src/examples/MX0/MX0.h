@@ -44,7 +44,7 @@ private:
     // current robot position
     robot_position robot_pos; // Estrutura para armazenar a posição do robô
     robot_speed emocoes; // Estrutura para armazenar a velocidade linear e angular
-    // enemy_localization_cord enemy_info; // Estrutura para armazenar as informações sobre o inimigo
+    enemy_localization_cord enemy_info; // Estrutura para armazenar as informações sobre o inimigo
     Enemy_localization enemy; // Objeto para obter a localização do inimigo
     Controller balancer_controller; // Controlador PID para ajustar a orientação
 
@@ -72,7 +72,7 @@ void MX0::init(){
     
     robot_pos = robot_localization.getPosition(); // Obtém a posição atual do robô
     
-    // enemy_info = enemy.get_info();
+    enemy_info = enemy.get_info();
 
     // Serial.print("1 inicial: ");
     // Serial.print(emocoes.angular);
@@ -80,17 +80,17 @@ void MX0::init(){
 
     // // Calcula a velocidade angular com base na orientação do robô e a do inimigo
      emocoes.angular = balancer_controller.output(0, robot_pos.theta);
-
+    balancer_controller.debug();
     
 
     
-    Serial.print(" calculo algular: ");
-    Serial.print(emocoes.angular);
-    Serial.print(" = PID*(");
-    Serial.print(robot_pos.theta);
-    Serial.print(" + ");
-    // Serial.print(enemy_info.angle);
-    Serial.print(" , ");
+    // Serial.print(" calculo algular: ");
+    // Serial.print(emocoes.angular);
+    // Serial.print(" = PID*(");
+    // Serial.print(robot_pos.theta);
+    // Serial.print(" + ");
+    // // Serial.print(enemy_info.angle);
+    // Serial.print(" , ");
    
     
 
