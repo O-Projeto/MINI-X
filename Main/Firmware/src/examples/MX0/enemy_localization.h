@@ -1,6 +1,10 @@
 #include "VL53_sensors.h"
 #include "VL53L5CX_sensor.h"
 
+#define SDIST_1 25 //change the pins 
+#define SDIST_2 23
+#define SDIST_3 13
+
 struct enemy_localization_cord {
     float angle;
     int dist;
@@ -12,9 +16,13 @@ struct enemy_localization_cord {
 // 3 --> 0 // vl->fodao 
 
 // return a struct with distance, and dregre is radians relative to the front of the robot 
+
+// #define N_SENSOR 3
+// int x_shut_pins[N_SENSOR] = { SDIST_1, SDIST_2, SDIST_3};
+
 class Enemy_localization{
   private:
-  // VL53_sensors sens_dist_lineares;
+  // VL53_sensors sens_dist_lineares(N_SENSOR, x_shut_pins);
   float max_pos;
   float mim_pos;
   float max_rad;
@@ -117,6 +125,7 @@ enemy_localization_cord Enemy_localization::get_info(){
 }
 
 void Enemy_localization::debug(){
+  /*
   Serial.print(" -0: ");
   Serial.print(sens_dist_robot[0]);  // -90 V
 
@@ -135,5 +144,5 @@ void Enemy_localization::debug(){
   Serial.print(" | ANGLE: ");
   Serial.print( enemy_cord_info.angle); // angulo do VL com menor distancia
   Serial.print(" | : ");
-
+*/
 }
