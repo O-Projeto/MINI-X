@@ -36,7 +36,7 @@ void setup(){
     Serial.begin(112500);
     Wire.begin();
     Wire.setClock(400000);
-    // enemy.init_sensors(Wire);
+    enemy.init_sensors(Wire);
     robot_localization.init(Wire);
 
     robo_speed.angular = 0 ;
@@ -147,8 +147,8 @@ void EnemyRobotLocalizationTask(void *pvParameters)
     while(1)
     {
         robot_position robot_pos = robot_localization.getPosition(); // Obtém a posição atual do robô
-        // enemy_localization_cord enemy_info = enemy.get_info();
-        enemy_localization_cord enemy_info ;
+        enemy_localization_cord enemy_info = enemy.get_info();
+        // enemy_localization_cord enemy_info ;
         // Envia as distâncias para a fila sem bloquear
         xQueueSendFromISR(enemyLocalizationQueue, ( void * ) &enemy_info, NULL);
         // Envia as distâncias para a fila sem bloquear
