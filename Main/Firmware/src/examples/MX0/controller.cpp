@@ -16,12 +16,12 @@ Controller::Controller(float kp,float ki, float kd)
 float Controller::output(float setpoint, float current_value){
 
     time = millis();
-    setpoint_ = setpoint; //*3.1415/180;
+    setpoint_ = setpoint *3.1415/180;
     current_value_ = current_value;
 
     error =  setpoint_ - current_value_ ;
-    Serial.print("ERRO = ");
-    Serial.print(error);
+    // Serial.print("ERRO = ");
+    // Serial.print(error);
     // Serial.print(" | Angulo: ");
 
     if (error < 0) error *= -1; // Faz modulo do error, para error ser sempre possitivo
@@ -61,11 +61,13 @@ float Controller::output(float setpoint, float current_value){
     // }else{
     // }
 
-    output_value =  proportional() + integrative() + derivative();
+    output_value =  proportional() + derivative() + integrative();
     // output_value = saturation(output_value,1000);
 
     last_time = time;
     last_error = error; // Guarda o erro antigo
+
+    // output_value = output_value
   
     return output_value;
 }
@@ -78,7 +80,6 @@ float Controller::proportional(){
 
 float Controller::integrative(){
     integral += error*delta_time;
-
     // integral = saturation(integral,1000);
     return integral*KI;
 
@@ -98,27 +99,27 @@ float Controller::derivative(){
 
 void Controller::debug(){
     
-    // Serial.print(" |delta_time: ");
-    // Serial.print(delta_time);
+    Serial.print(" |delta_time: ");
+    Serial.print(delta_time);
 
-    // Serial.print("|input_values: ");
-    // Serial.print(setpoint_);
-    // Serial.print("|current_values: ");
-    // Serial.print(current_value_);
+    Serial.print("|input_values: ");
+    Serial.print(setpoint_);
+    Serial.print("|current_values: ");
+    Serial.print(current_value_);
 
-    // Serial.print("||error: ");
-    // Serial.print(error);
-    // Serial.print("|P: ");
-    // Serial.print(proportional());
-    // Serial.print("|I: ");
-    // Serial.print(integrative());
-    // Serial.print("|D: ");
-    // Serial.print(derivative());
+    Serial.print("||error: ");
+    Serial.print(error);
+    Serial.print("|P: ");
+    Serial.print(proportional());
+    Serial.print("|I: ");
+    Serial.print(integrative());
+    Serial.print("|D: ");
+    Serial.print(derivative());
 
-    // Serial.print("|output_value: ");
-    // Serial.println(output_value);
+    Serial.print("|output_value: ");
+    Serial.println(output_value);
     
-    // Serial.println("");
+    Serial.println("");
 
 }
 

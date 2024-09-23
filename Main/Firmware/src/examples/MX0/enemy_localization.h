@@ -69,7 +69,7 @@ void Enemy_localization::init_sensors(TwoWire &wire){
 void Enemy_localization::update_dist(){
   sens_dist_lineares.distanceRead();
   vl_data_storage = VL53L5_get_info();
-  Serial.print(l++);
+ 
 }
 
 enemy_localization_cord Enemy_localization::get_info(){
@@ -96,23 +96,23 @@ enemy_localization_cord Enemy_localization::get_info(){
 
 void Enemy_localization::debug(){
   
-  Serial.print(" -0: ");
-  Serial.print(sens_dist_robot[0]);  // -90 V
+  // Serial.print(" -0: ");
+  // Serial.print(sens_dist_robot[0]);  // -90 V
 
-  Serial.print(" 1: ");
-  Serial.print(sens_dist_robot[1]);  // 180 V
+  // Serial.print(" 1: ");
+  // Serial.print(sens_dist_robot[1]);  // 180 V
 
-  Serial.print(" 2: ");
-  Serial.print(sens_dist_robot[2]);  // 90 X
+  // Serial.print(" 2: ");
+  // Serial.print(sens_dist_robot[2]);  // 90 X
 
-  Serial.print(" 3: ");
-  Serial.print(sens_dist_robot[3]); // VL fodâo 0 graus X
+  // Serial.print(" 3: ");
+  // Serial.print(sens_dist_robot[3]); // VL fodâo 0 graus X
 
-  Serial.print(" | DIST: ");
-  Serial.print( enemy_cord_info.dist); // melhor distancia vista pelos VLs
+  // Serial.print(" | DIST: ");
+  // Serial.print( enemy_cord_info.dist); // melhor distancia vista pelos VLs
 
-  Serial.print(" | ANGLE: ");
-  Serial.print( enemy_cord_info.angle); // angulo do VL com menor distancia
-  Serial.print(" | : ");
+  // Serial.print(" | ANGLE: ");
+  // Serial.print( enemy_cord_info.angle); // angulo do VL com menor distancia
+  // Serial.print(" | : ");
 
 }

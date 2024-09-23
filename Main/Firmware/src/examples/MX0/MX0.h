@@ -78,8 +78,8 @@ void MX0::init(){
     Serial.println(robot_pos.x);
     Serial.print("Enemy Info: ");
     Serial.println(enemy_info.dist);
-    // Serial.print("1 inicial: ");
-    // Serial.print(emocoes.angular);
+    Serial.print("1 inicial: ");
+    Serial.print(emocoes.angular);
     // Serial.print(" | ");
 
     // // Calcula a velocidade angular com base na orientação do robô e a do inimigo
