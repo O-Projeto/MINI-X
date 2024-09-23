@@ -101,22 +101,22 @@ void Controller::debug(){
     // Serial.print(" |delta_time: ");
     // Serial.print(delta_time);
 
-    Serial.print("|input_values: ");
-    Serial.print(setpoint_);
-    Serial.print("|current_values: ");
-    Serial.print(current_value_);
+    // Serial.print("|input_values: ");
+    // Serial.print(setpoint_);
+    // Serial.print("|current_values: ");
+    // Serial.print(current_value_);
 
-    Serial.print("||error: ");
-    Serial.print(error);
-    Serial.print("|P: ");
-    Serial.print(proportional());
-    Serial.print("|I: ");
-    Serial.print(integrative());
-    Serial.print("|D: ");
-    Serial.print(derivative());
+    // Serial.print("||error: ");
+    // Serial.print(error);
+    // Serial.print("|P: ");
+    // Serial.print(proportional());
+    // Serial.print("|I: ");
+    // Serial.print(integrative());
+    // Serial.print("|D: ");
+    // Serial.print(derivative());
 
-    Serial.print("|output_value: ");
-    Serial.println(output_value);
+    // Serial.print("|output_value: ");
+    // Serial.println(output_value);
     
     // Serial.println("");
 

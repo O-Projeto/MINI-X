@@ -42,17 +42,18 @@ private:
     
     localization robot_localization; // Objeto para obter a localização do robô
     // current robot position
-    robot_position robot_pos; // Estrutura para armazenar a posição do robô
+    // robot_position robot_pos; // Estrutura para armazenar a posição do robô
     robot_speed emocoes; // Estrutura para armazenar a velocidade linear e angular
-    enemy_localization_cord enemy_info; // Estrutura para armazenar as informações sobre o inimigo
+    // enemy_localization_cord enemy_info; // Estrutura para armazenar as informações sobre o inimigo
     Enemy_localization enemy; // Objeto para obter a localização do inimigo
     Controller balancer_controller; // Controlador PID para ajustar a orientação
 
 public:
-
+    robot_position robot_pos; // Estrutura para armazenar a posição do robô
+    enemy_localization_cord enemy_info; // Estrutura para armazenar as informações sobre o inimigo
     MX0(/* args */);
     void init();
-    robot_speed process();
+    robot_speed process(robot_position robot_pos, enemy_localization_cord enemy_info);
     void debug();
    
 };
@@ -68,18 +69,24 @@ void MX0::init(){
      robot_localization.init(Wire);
 }
 
- robot_speed MX0::process(){
+ robot_speed MX0::process(robot_position robot_pos, enemy_localization_cord enemy_info)
+ {
     
-    robot_pos = robot_localization.getPosition(); // Obtém a posição atual do robô
-    
-    enemy_info = enemy.get_info();
+    // const int long timer_enemy = millis();
 
+    Serial.print("Robot Pos: ");
+    Serial.println(robot_pos.x);
+    Serial.print("Enemy Info: ");
+    Serial.println(enemy_info.dist);
     // Serial.print("1 inicial: ");
     // Serial.print(emocoes.angular);
     // Serial.print(" | ");
 
     // // Calcula a velocidade angular com base na orientação do robô e a do inimigo
      emocoes.angular = balancer_controller.output(0, robot_pos.theta);
+
+    const int long timer_pid = millis();
+
     balancer_controller.debug();
     
 
@@ -95,38 +102,15 @@ void MX0::init(){
     
 
     // Define a velocidade linear com base na distância do inimigo
-    emocoes.linear = 3 / (10); // Valor padrão pequeno
-/*
-    // Ajusta a velocidade linear com base na posição do inimigo
-    if (enemy_info.angle == 0 && enemy_info.dist < 500) {
-        emocoes.linear = 0.2; // Aumenta a velocidade se o inimigo está diretamente à frente e perto  
-    }
+    emocoes.linear = 0; // Valor padrão pequeno
 
-    else if (enemy_info.angle == 180 && enemy_info.dist < 500) {
-        emocoes.linear = -0.2; // Reverte a velocidade se o inimigo está diretamente atrás e perto
-    } 
-
-    else if (enemy_info.angle == 90 && enemy_info.dist < 500){
-        emocoes.linear = 0.1;
-    }
-
-    else if (enemy_info.angle == -90 && enemy_info.dist < 500){
-        emocoes.linear = -0.1;
-    }
-
-    else {
-        emocoes.linear = 0.05; // Mantém a velocidade padrão se o inimigo não estiver muito próximo
-    }
-
-        emocoes.linear = 0; // Valor padrão pequeno
-*/
 
     return emocoes;    
 }
 
 void MX0::debug(){
 
-    enemy.debug();
+    // enemy.debug();
 
    // balancer_controller.debug();
 
