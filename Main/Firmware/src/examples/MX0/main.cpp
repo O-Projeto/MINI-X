@@ -22,6 +22,8 @@ kinematic robo_moviment(32,33,L,R);
 MX0 razoes;
 localization robot_localization; // Objeto para obter a localização do robô
 Enemy_localization enemy; // Objeto para obter a localização do inimigo
+robot_position robot_pos;
+enemy_localization_cord enemy_info;
 
 robot_speed robo_speed;
 // Handle para a fila
@@ -127,8 +129,7 @@ void loop(){
 }
 void EnemyRobotLocalizationUpdate()
 {
-    robot_position robot_pos;
-    enemy_localization_cord enemy_info;
+   
     // Tenta ler da fila sem bloquear
     if (xQueueReceive(enemyLocalizationQueue, &enemy_info, 0) && xQueueReceive(robotPositionQueue, &robot_pos, 0))
     {
@@ -146,8 +147,8 @@ void EnemyRobotLocalizationTask(void *pvParameters)
 {
     while(1)
     {
-        robot_position robot_pos = robot_localization.getPosition(); // Obtém a posição atual do robô
-        enemy_localization_cord enemy_info = enemy.get_info();
+         robot_pos = robot_localization.getPosition(); // Obtém a posição atual do robô
+        enemy_info = enemy.get_info();
         // enemy_localization_cord enemy_info ;
         // Envia as distâncias para a fila sem bloquear
         xQueueSendFromISR(enemyLocalizationQueue, ( void * ) &enemy_info, NULL);

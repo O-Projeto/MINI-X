@@ -74,13 +74,13 @@ void MX0::init(){
     
     // const int long timer_enemy = millis();
 
-    Serial.print("Robot Pos: ");
-    Serial.println(robot_pos.x);
-    Serial.print("Enemy Info: ");
-    Serial.println(enemy_info.dist);
-    Serial.print("1 inicial: ");
-    Serial.print(emocoes.angular);
-    // Serial.print(" | ");
+    // Serial.print("Robot Pos: ");
+    // Serial.println(robot_pos.x);
+    // Serial.print("Enemy Info: ");
+    // Serial.println(enemy_info.dist);
+    // Serial.print("1 inicial: ");
+    // Serial.print(emocoes.angular);
+    // // Serial.print(" | ");
 
     // // Calcula a velocidade angular com base na orientação do robô e a do inimigo
      emocoes.angular = balancer_controller.output(0, robot_pos.theta);
