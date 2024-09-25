@@ -16,47 +16,45 @@ Controller::Controller(float kp,float ki, float kd)
 float Controller::output(float setpoint, float current_value){
 
     time = millis();
-    setpoint_ = setpoint; //*3.1415/180;
+    setpoint_ = setpoint*3.1415/180;
     current_value_ = current_value;
 
     error =  setpoint_ - current_value_ ;
-    Serial.print("ERRO = ");
-    Serial.print(error);
+    // Serial.print("ERRO = ");
+    // Serial.print(error);
     // Serial.print(" | Angulo: ");
 
-    error_PID = error;
-    if (error < 0){
-        error_PID = error * -1; // Faz modulo do error, para error ser sempre possitivo
+    float errorPID = error;
+
+    if (error < 0) {
+        errorPID = error * -1; // Faz modulo do error, para error ser sempre possitivo
     }
 
-    if(error_PID >= 0 && error_PID <= 45*3.1415/180){
+    if(errorPID >= 0 && errorPID <= 45*3.1415/180){
         KP = 3; //constante correção de erros PID
         KI = 0.01;
         KD = 0.0;
-        // Serial.println("45");
+        Serial.println("45");
     }
-    if(error_PID > 45*3.1415/180 && error_PID <= 90*3.1415/180){
+    if(errorPID > 45*3.1415/180 && errorPID <= 90*3.1415/180){
         KP = 1.6; //constante correção de erros PID
         KI = 0.01;
         KD = 0.0;
-        // Serial.println("90");
+        Serial.println("90");
     }
-    if(error_PID > 90*3.1415/180 && error_PID <= 135*3.1415/180){
+    if(errorPID > 90*3.1415/180 && errorPID <= 135*3.1415/180){
         KP = 1.18; //constante correção de erros PID
         KI = 0.01;
         KD = 0.0;
-        // Serial.println("135");
+        Serial.println("135");
     }
-    if(error_PID > 135*3.1415/180 && error_PID <= 180*3.1415/180){
+    if(errorPID > 135*3.1415/180 && errorPID <= 180*3.1415/180){
         KP = 1.088; //constante correção de erros PID
         KI = 0.01;
         KD = 0.0;
-        // Serial.println("180");
+        Serial.println("180");
     }
-    else {
-
-        // Serial.println("deu ruim");
-    }
+   
 
     delta_time = (double)(time - last_time)/10000;  //
     // if(setpoint_ == 0){
@@ -64,11 +62,13 @@ float Controller::output(float setpoint, float current_value){
     // }else{
     // }
 
-    output_value =  proportional() + integrative() + derivative();
+    output_value =  proportional() + derivative() + integrative();
     // output_value = saturation(output_value,1000);
 
     last_time = time;
     last_error = error; // Guarda o erro antigo
+
+    // output_value = output_value
   
     return output_value;
 }
@@ -81,7 +81,6 @@ float Controller::proportional(){
 
 float Controller::integrative(){
     integral += error*delta_time;
-
     // integral = saturation(integral,1000);
     return integral*KI;
 
@@ -101,8 +100,8 @@ float Controller::derivative(){
 
 void Controller::debug(){
     
-    // Serial.print(" |delta_time: ");
-    // Serial.print(delta_time);
+    Serial.print(" |delta_time: ");
+    Serial.print(delta_time);
 
     Serial.print("|input_values: ");
     Serial.print(setpoint_);
