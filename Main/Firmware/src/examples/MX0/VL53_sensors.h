@@ -9,13 +9,13 @@ class VL53_sensors
 private:
     /* data */
 public:
-    int number_sensor = 3; // change this value 
-    int x_shut_pins[3] = { SDIST_1, SDIST_2, SDIST_3} ; 
-    int dist[3];
+    int number_sensor = 1; // change this value 
+    int x_shut_pins[3] = { SDIST_1}; //, SDIST_2, SDIST_3} ; 
+    int dist[1];
     int test = 0;
     int distTest;
 
-    VL53L0X sensor[3];
+    VL53L0X sensor[1];
     
     void sensorsInit(TwoWire &wire);
     void distanceRead();
@@ -47,6 +47,10 @@ void VL53_sensors::sensorsInit(TwoWire &wire) {
 void VL53_sensors::distanceRead() {
     for (uint8_t i = 0; i < number_sensor; i++) {
         dist[i] = sensor[i].readRangeSingleMillimeters();
+        // Serial.print("VL ");
+        // Serial.print(i);
+        // Serial.print(" : ");
+        // Serial.println(dist[i]);
     }
 }
 

@@ -24,27 +24,30 @@ float Controller::output(float setpoint, float current_value){
     Serial.print(error);
     // Serial.print(" | Angulo: ");
 
-    if (error < 0) error *= -1; // Faz modulo do error, para error ser sempre possitivo
+    error_PID = error;
+    if (error < 0){
+        error_PID = error * -1; // Faz modulo do error, para error ser sempre possitivo
+    }
 
-    if(error >= 0 && error <= 45*3.1415/180){
+    if(error_PID >= 0 && error_PID <= 45*3.1415/180){
         KP = 3; //constante correção de erros PID
         KI = 0.01;
         KD = 0.0;
         // Serial.println("45");
     }
-    if(error > 45*3.1415/180 && error <= 90*3.1415/180){
+    if(error_PID > 45*3.1415/180 && error_PID <= 90*3.1415/180){
         KP = 1.6; //constante correção de erros PID
         KI = 0.01;
         KD = 0.0;
         // Serial.println("90");
     }
-    if(error > 90*3.1415/180 && error <= 135*3.1415/180){
+    if(error_PID > 90*3.1415/180 && error_PID <= 135*3.1415/180){
         KP = 1.18; //constante correção de erros PID
         KI = 0.01;
         KD = 0.0;
         // Serial.println("135");
     }
-    if(error > 135*3.1415/180 && error <= 180*3.1415/180){
+    if(error_PID > 135*3.1415/180 && error_PID <= 180*3.1415/180){
         KP = 1.088; //constante correção de erros PID
         KI = 0.01;
         KD = 0.0;

@@ -19,7 +19,7 @@ struct enemy_localization_cord {
 
 #define N_SENSOR 3
 
-int x_shut_pins[N_SENSOR] = { SDIST_1, SDIST_2, SDIST_3};
+int x_shut_pins[N_SENSOR] = {SDIST_1, SDIST_2, SDIST_3};
 
 class Enemy_localization{
   private:

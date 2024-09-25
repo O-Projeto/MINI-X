@@ -30,6 +30,8 @@ public:
     unsigned long time; 
     unsigned long last_time;
     float  delta_time;
+
+    int error_PID;
     
     void debug();
 

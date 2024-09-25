@@ -23,9 +23,11 @@ VL53L5CX_ResultsData measurementData; // Result data class structure, 1356 byes 
 int imageResolution = 0; //Used to pretty print output
 int imageWidth = 0; //Used to pretty print output
 
+int inimigo[6]; //Vetor para localizar inimigo
+
 void setup()
 {
-  Serial.begin(115200);
+  Serial.begin(112500);
   delay(1000);
   Serial.println("SparkFun VL53L5CX Imager Example");
   Wire.setPins(15,4);
@@ -62,11 +64,27 @@ void loop()
         {
           Serial.print("\t");
           Serial.print(measurementData.distance_mm[x + y]);
+          
+          if (y == 4){
+            /*            if (x > 0 && x < 7){
+              inimigo [x] = measurementData.distance_mm[x + y];
+            }
+            */
+          }
         }
         Serial.println();
       }
       Serial.println();
     }
+    /*
+    Serial.println("");
+    Serial.print("        ");
+    for (int c = 0; c < 6; c++){
+      Serial.print(inimigo[c]);
+      Serial.print("  ");
+    }
+    Serial.println();
+    */
   }
 
   delay(5); //Small delay between polling

@@ -62,10 +62,10 @@ MX0::MX0():balancer_controller(KP, KI, KD){
 }
 
 void MX0::init(){
-     Wire.begin();
-     Wire.setClock(400000);
-     enemy.init_sensors(Wire);
-     robot_localization.init(Wire);
+    Wire.begin();
+    Wire.setClock(400000);
+    enemy.init_sensors(Wire);
+    robot_localization.init(Wire);
 }
 
  robot_speed MX0::process(){
@@ -78,8 +78,8 @@ void MX0::init(){
     // Serial.print(emocoes.angular);
     // Serial.print(" | ");
 
-    // // Calcula a velocidade angular com base na orientação do robô e a do inimigo
-     emocoes.angular = balancer_controller.output(0, robot_pos.theta);
+    // Calcula a velocidade angular com base na orientação do robô e a do inimigo
+    emocoes.angular = balancer_controller.output(0, robot_pos.theta);
     balancer_controller.debug();
     
 
@@ -89,7 +89,7 @@ void MX0::init(){
     // Serial.print(" = PID*(");
     // Serial.print(robot_pos.theta);
     // Serial.print(" + ");
-    // // Serial.print(enemy_info.angle);
+    // Serial.print(enemy_info.angle);
     // Serial.print(" , ");
    
     
@@ -126,7 +126,7 @@ void MX0::init(){
 
 void MX0::debug(){
 
-    enemy.debug();
+    // enemy.debug();
 
    // balancer_controller.debug();
 
