@@ -47,6 +47,7 @@ private:
     // enemy_localization_cord enemy_info; // Estrutura para armazenar as informações sobre o inimigo
     Enemy_localization enemy; // Objeto para obter a localização do inimigo
     Controller balancer_controller; // Controlador PID para ajustar a orientação
+    int angulo_pid;
 
 public:
     robot_position robot_pos; // Estrutura para armazenar a posição do robô
@@ -82,10 +83,19 @@ void MX0::init(){
     // Serial.print(emocoes.angular);
     // // Serial.print(" | ");
 
+    angulo_pid = robot_pos.theta + enemy_info.angle;
+
+    if( angulo_pid < PI)
+        angulo_pid = angulo_pid +2*PI ;
+
+    if( angulo_pid > PI)
+        angulo_pid = angulo_pid - 2*PI ;
+
     // // Calcula a velocidade angular com base na orientação do robô e a do inimigo
-     emocoes.angular = balancer_controller.output(0, robot_pos.theta);
+    // emocoes.angular = balancer_controller.output(0, robot_pos.theta);
 
     const int long timer_pid = millis();
+    
 
     balancer_controller.debug();
     
@@ -112,7 +122,7 @@ void MX0::debug(){
 
     // enemy.debug();
 
-   // balancer_controller.debug();
+   balancer_controller.debug();
 
     /*
    robot_localization.debug();

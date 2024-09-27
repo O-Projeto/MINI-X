@@ -21,7 +21,7 @@ public:
     // Construtor que aceita número de sensores e os pinos
     VL53_sensors(int num, int* pins) : number_sensor(num), x_shut_pins(pins), dist(num), sensor(num) {}
     
-    void sensorsInit();
+    void sensorsInit(TwoWire &wire);
     void distanceRead();
     void printDistances();
     void testRead();
@@ -29,23 +29,41 @@ public:
 
 
 
-void VL53_sensors::sensorsInit() {
+void VL53_sensors::sensorsInit(TwoWire &wire)
+{
 
     //Iniciando o endereçamento dos sensores
-    Wire.begin();
+    //Wire.begin();
 
     for (uint8_t i = 0; i < number_sensor; i++){
-      pinMode(x_shut_pins[i], OUTPUT);
-      digitalWrite(x_shut_pins[i], LOW);
-
-
+      if(x_shut_pins[i] != -1)
+      {
+        pinMode(x_shut_pins[i], OUTPUT);
+        digitalWrite(x_shut_pins[i], LOW);
+      }
+      
     }
 
     for (uint8_t i = 0; i < number_sensor; i++){
-      pinMode(x_shut_pins[i], INPUT);
-      sensor[i].init(true);
-      sensor[i].setAddress((uint8_t)0x21 + i); //endereço do sensor 1
-      sensor[i].setTimeout(40);
+      if(x_shut_pins[i] == -1)
+      {
+        sensor[i].setBus(&wire);
+        sensor[i].init(true);
+        sensor[i].setAddress((uint8_t)0x21);
+        sensor[i].setTimeout(40);
+
+      }
+      else 
+      {
+        
+        pinMode(x_shut_pins[i], INPUT);
+        sensor[i].setBus(&wire);
+        sensor[i].init(true);
+        sensor[i].setAddress((uint8_t)0x21 + i); //endereço do sensor 1
+        sensor[i].setTimeout(40);
+        
+      }
+      
     }
     
 }

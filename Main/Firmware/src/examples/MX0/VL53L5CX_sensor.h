@@ -42,7 +42,7 @@ static const uint8_t cxSCL = 4;
 
 float avg ,sum ; 
 int menor_dist;
-#define STEP 7
+#define STEP 2
 struct vl_data {
     int pos;
     int dist;
@@ -56,12 +56,13 @@ vl_data data;
 int imageResolution = 0; //Used to pretty print output
 int imageWidth = 0; //Used to pretty print output
 
+
 void VL53L5_init(){
     Serial.println("SparkFun VL53L5CX Imager Example");
     Wire2CX.setPins(cxSDA,cxSCL);
     Wire2CX.begin();
 
-    Wire2CX.setClock(1000000); //Sensor has max I2C freq of 1MHz
+    Wire2CX.setClock(400000); //Sensor has max I2C freq of 1MHz
 
     // myImager.setWireMaxPacketSize(32); //Increase default from 32 bytes to 128 - not supported on all platforms
 
@@ -84,7 +85,7 @@ void VL53L5_init(){
     Serial.print(timeTaken, 3);
     Serial.println("s");
 
-    myImager.setResolution(8*8); //Enable all 16 pads
+    myImager.setResolution(4*4); //Enable all 16 pads
     myImager.setSharpenerPercent(50);
     myImager.setRangingFrequency(15);
 
@@ -126,7 +127,7 @@ vl_data VL53L5_get_info(){
 
         data.pos = avg/sum;
         data.dist = menor_dist;
-        // Serial.print(avg/sum);
+        Serial.print(avg/sum);
         // Serial.println();
         return data;
       // }

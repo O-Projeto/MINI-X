@@ -99,7 +99,7 @@ float Controller::derivative(){
 }
 
 void Controller::debug(){
-    
+    /*
     Serial.print(" |delta_time: ");
     Serial.print(delta_time);
 
@@ -119,7 +119,7 @@ void Controller::debug(){
 
     Serial.print("|output_value: ");
     Serial.println(output_value);
-    
+    */
     // Serial.println("");
 
 }
