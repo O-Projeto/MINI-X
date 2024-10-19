@@ -100,7 +100,7 @@ enemy_localization_cord Enemy_localization::get_info(){
   for (int i = 0; i < 4; i++){
     if ( enemy_cord_info.dist > sens_dist_robot[i]){
       enemy_cord_info.dist = sens_dist_robot[i];
-      // enemy_cord_info.angle = sens_pos_robot[i];
+      enemy_cord_info.angle = sens_pos_robot[i];
     }
   }
   return enemy_cord_info ;  

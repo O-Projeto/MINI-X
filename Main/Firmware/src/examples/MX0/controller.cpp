@@ -1,104 +1,115 @@
 #include "controller.h"
 
-
-Controller::Controller(float kp,float ki, float kd)
-{   KP = kp;
+Controller::Controller(float kp, float ki, float kd)
+{
+    KP = kp;
     KD = kd;
     KI = ki;
     integral = 0;
-    time = 0 ; 
-    last_time = 0 ;
-    delta_time= 0 ;
+    time = 0;
+    last_time = 0;
+    delta_time = 0;
     error = 0;
     last_error = 0;
 }
 
-float Controller::output(float setpoint, float current_value){
+float Controller::output(float setpoint, float current_value)
+{
 
     time = millis();
-    setpoint_ = setpoint*3.1415/180;
+    setpoint_ = setpoint * 3.1415 / 180;
     current_value_ = current_value;
 
-    error =  setpoint_ - current_value_ ;
+    error = setpoint_ - current_value_;
     // Serial.print("ERRO = ");
     // Serial.print(error);
     // Serial.print(" | Angulo: ");
 
     float errorPID = error;
 
-    if (error < 0) {
+    if (error < 0)
+    {
         errorPID = error * -1; // Faz modulo do error, para error ser sempre possitivo
     }
 
-    if(errorPID >= 0 && errorPID <= 45*3.1415/180){
-        KP = 3; //constante correção de erros PID
-        KI = 0.01;
-        KD = 0.0;
-        Serial.println("45");
-    }
-    if(errorPID > 45*3.1415/180 && errorPID <= 90*3.1415/180){
-        KP = 1.6; //constante correção de erros PID
-        KI = 0.01;
-        KD = 0.0;
-        Serial.println("90");
-    }
-    if(errorPID > 90*3.1415/180 && errorPID <= 135*3.1415/180){
-        KP = 1.18; //constante correção de erros PID
-        KI = 0.01;
-        KD = 0.0;
-        Serial.println("135");
-    }
-    if(errorPID > 135*3.1415/180 && errorPID <= 180*3.1415/180){
-        KP = 1.088; //constante correção de erros PID
-        KI = 0.01;
-        KD = 0.0;
-        Serial.println("180");
-    }
-   
+    // Serial.print("Error: ");
+    // Serial.println(error);
 
-    delta_time = (double)(time - last_time)/10000;  //
+    if (errorPID >= 0 && errorPID <= 45 * 3.1415 / 180)
+    {
+        KP = 3; // constante correção de erros PID
+        KI = 0.01;
+        KD = 0.0;
+        // Serial.println("45");
+    }
+    if (errorPID > 45 * 3.1415 / 180 && errorPID <= 90 * 3.1415 / 180)
+    {
+        KP = 1.6; // constante correção de erros PID
+        KI = 0.01;
+        KD = 0.0;
+        // Serial.println("90");
+    }
+    if (errorPID > 90 * 3.1415 / 180 && errorPID <= 135 * 3.1415 / 180)
+    {
+        KP = 1.18; // constante correção de erros PID
+        KI = 0.01;
+        KD = 0.0;
+        // Serial.println("135");
+    }
+    if (errorPID > 135 * 3.1415 / 180 && errorPID <= 180 * 3.1415 / 180)
+    {
+        KP = 1.088; // constante correção de erros PID
+        KI = 0.01;
+        KD = 0.0;
+        // Serial.println("180");
+    }
+
+    delta_time = (double)(time - last_time) / 10000; //
     // if(setpoint_ == 0){
     //     output_value =  current_value_ + proportional() + derivative() ;
     // }else{
     // }
 
-    output_value =  proportional() + derivative() + integrative();
+    output_value = proportional() + derivative() + integrative();
     // output_value = saturation(output_value,1000);
 
     last_time = time;
     last_error = error; // Guarda o erro antigo
 
     // output_value = output_value
-  
+
     return output_value;
 }
 
-float Controller::proportional(){
+float Controller::proportional()
+{
 
-    return error*KP; 
-
+    return error * KP;
 }
 
-float Controller::integrative(){
-    integral += error*delta_time;
+float Controller::integrative()
+{
+    integral += error * delta_time;
     // integral = saturation(integral,1000);
-    return integral*KI;
-
+    return integral * KI;
 }
 
-float Controller::derivative(){
-   
-    if (last_error - error!= 0){
-        delta_error = (last_error - error)/delta_time;
-    }
-    else {
-        delta_error = 0; 
-    }
-    return delta_error*KD;
+float Controller::derivative()
+{
 
+    if (last_error - error != 0)
+    {
+        delta_error = (last_error - error) / delta_time;
+    }
+    else
+    {
+        delta_error = 0;
+    }
+    return delta_error * KD;
 }
 
-void Controller::debug(){
+void Controller::debug()
+{
     /*
     Serial.print(" |delta_time: ");
     Serial.print(delta_time);
@@ -121,9 +132,4 @@ void Controller::debug(){
     Serial.println(output_value);
     */
     // Serial.println("");
-
 }
-
-
-
-
